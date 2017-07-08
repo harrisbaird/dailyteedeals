@@ -43,8 +43,8 @@ type artistL struct{}
 
 var (
 	artistColumns               = []string{"id", "name", "slug", "urls", "tags"}
-	artistColumnsWithoutDefault = []string{"name", "slug"}
-	artistColumnsWithDefault    = []string{"id", "urls", "tags"}
+	artistColumnsWithoutDefault = []string{"id", "name", "slug"}
+	artistColumnsWithDefault    = []string{"urls", "tags"}
 	artistPrimaryKeyColumns     = []string{"id"}
 )
 

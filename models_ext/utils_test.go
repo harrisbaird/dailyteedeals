@@ -67,9 +67,8 @@ func TestMakeSlug(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			slug := MakeSlug(tt.input)
-
 			st.Expect(t, strings.Contains(slug, tt.output), true)
-			st.Expect(t, validateSlug(slug), true)
+			st.Expect(t, ValidSlug.MatchString(slug), true)
 		})
 	}
 }

@@ -13,6 +13,7 @@ import (
 func init() {
 	models.AddDesignHook(boil.BeforeInsertHook, designSaveHook)
 	models.AddDesignHook(boil.BeforeUpdateHook, designSaveHook)
+	models.AddDesignHook(boil.BeforeUpsertHook, designSaveHook)
 }
 
 func FindOrCreateDesign(db boil.Executor, artistID int, name string) (*models.Design, error) {

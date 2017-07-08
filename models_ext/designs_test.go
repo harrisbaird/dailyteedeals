@@ -3,66 +3,53 @@ package models_ext_test
 import (
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/harrisbaird/dailyteedeals/models"
 	. "github.com/harrisbaird/dailyteedeals/models_ext"
 	"github.com/nbio/st"
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"github.com/vattle/sqlboiler/boil"
 )
 
 func TestFindOrCreateDesign(t *testing.T) {
-	db, mock := newSQLMock()
-	defer db.Close()
-
 	testCases := []struct {
-		name      string
-		createNew bool
+		name               string
+		designName         string
+		designsCountChange int
 	}{
-		{"New", true},
-		{"Existing", false},
+		{"New", "Susuwatari family", 1},
+		{"Existing", "Summer is here", 0},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
+			RunInTestTransaction(func(db boil.Executor) {
+				CreateDesignFixtures(db)
+				var design *models.Design
+				var err error
 
-			rows := sqlmock.NewRows([]string{"id", "name", "slug", "tags"})
+				count := TableCountDiff(db, "designs", func() {
+					design, err = FindOrCreateDesign(db, 1, tt.designName)
+				})
 
-			if tt.createNew {
-				mock.ExpectQuery("SELECT \\* FROM \"designs\"").WillReturnRows(rows)
-				mock.ExpectQuery("INSERT INTO \"designs\"").
-					WithArgs(1, "Design Name", sqlmock.AnyArg(), "{\"designname\"}", "{}").
-					WillReturnRows(sqlmock.NewRows([]string{"id", "description", "mature", "active_products_count"}).AddRow(1, "", false, 0))
-			} else {
-				mock.ExpectQuery("SELECT \\* FROM \"designs\"").WillReturnRows(rows.AddRow(1, "Design Name", "45478-designname", "{\"designname\"}"))
-			}
-
-			design, err := FindOrCreateDesign(db, 1, "Design Name")
-			spew.Dump(design, err)
-
-			st.Expect(t, err, nil)
-			st.Expect(t, validateSlug(design.Slug), true)
-			st.Expect(t, mock.ExpectationsWereMet() != nil, false)
+				st.Expect(t, err, nil)
+				st.Reject(t, design, nil)
+				st.Expect(t, count, tt.designsCountChange)
+				st.Expect(t, ValidSlug.MatchString(design.Slug), true)
+			})
 		})
 	}
 }
 
 func TestDesignHooks(t *testing.T) {
-	db, mock := newSQLMock()
-	defer db.Close()
+	RunInTestTransaction(func(db boil.Executor) {
+		CreateArtistFixtures(db)
+		design := models.Design{
+			ArtistID:     1,
+			Name:         "   test design  ",
+			Tags:         []string{"tags 1"},
+			CategoryTags: []string{"category tags 1"}}
+		err := design.Insert(db)
 
-	design := models.Design{
-		ArtistID:     1,
-		Name:         "   test design  ",
-		Tags:         []string{"tags 1"},
-		CategoryTags: []string{"category tags 1"}}
-
-	mock.ExpectQuery("INSERT INTO \"designs\"").
-		WithArgs(1, "Test Design", sqlmock.AnyArg(), "{\"tags1\",\"testdesign\"}", "{\"categorytags1\"}").
-		WillReturnRows(sqlmock.NewRows([]string{"id", "description", "mature", "active_products_count"}).AddRow(1, "", false, 0))
-
-	err := design.Insert(db)
-
-	st.Expect(t, err, nil)
-	st.Expect(t, validateSlug(design.Slug), true)
-	st.Expect(t, mock.ExpectationsWereMet(), nil)
+		st.Expect(t, err, nil)
+		st.Expect(t, ValidSlug.MatchString(design.Slug), true)
+	})
 }

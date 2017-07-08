@@ -533,7 +533,7 @@ func testUsersSelect(t *testing.T) {
 }
 
 var (
-	userDBTypes = map[string]string{`APIAccess`: `boolean`, `APIToken`: `character varying`, `Admin`: `boolean`, `Email`: `character varying`, `EncryptedPassword`: `character varying`, `ID`: `integer`}
+	userDBTypes = map[string]string{`APIAccess`: `boolean`, `APIToken`: `text`, `Admin`: `boolean`, `Email`: `text`, `EncryptedPassword`: `text`, `ID`: `integer`}
 	_           = bytes.MinRead
 )
 

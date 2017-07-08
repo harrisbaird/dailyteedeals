@@ -38,7 +38,6 @@ type Product struct {
 	ActiveAt        null.Time         `boil:"active_at" json:"active_at,omitempty" toml:"active_at" yaml:"active_at,omitempty"`
 	ImageBackground string            `boil:"image_background" json:"image_background" toml:"image_background" yaml:"image_background"`
 	ImageUpdatedAt  time.Time         `boil:"image_updated_at" json:"image_updated_at" toml:"image_updated_at" yaml:"image_updated_at"`
-	ImagePrimary    string            `boil:"image_primary" json:"image_primary" toml:"image_primary" yaml:"image_primary"`
 
 	R *productR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L productL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -54,9 +53,9 @@ type productR struct {
 type productL struct{}
 
 var (
-	productColumns               = []string{"id", "design_id", "site_id", "slug", "url", "active", "deal", "last_chance", "tags", "prices", "expires_at", "active_at", "image_background", "image_updated_at", "image_primary"}
-	productColumnsWithoutDefault = []string{"design_id", "site_id", "slug", "url", "expires_at", "active_at"}
-	productColumnsWithDefault    = []string{"id", "active", "deal", "last_chance", "tags", "prices", "image_background", "image_updated_at", "image_primary"}
+	productColumns               = []string{"id", "design_id", "site_id", "slug", "url", "active", "deal", "last_chance", "tags", "prices", "expires_at", "active_at", "image_background", "image_updated_at"}
+	productColumnsWithoutDefault = []string{"id", "design_id", "site_id", "slug", "url", "expires_at", "active_at"}
+	productColumnsWithDefault    = []string{"active", "deal", "last_chance", "tags", "prices", "image_background", "image_updated_at"}
 	productPrimaryKeyColumns     = []string{"id"}
 )
 

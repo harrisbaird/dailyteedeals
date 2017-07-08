@@ -785,7 +785,7 @@ func testDesignsSelect(t *testing.T) {
 }
 
 var (
-	designDBTypes = map[string]string{`ActiveProductsCount`: `integer`, `ArtistID`: `integer`, `CategoryTags`: `ARRAYtext`, `Description`: `character varying`, `ID`: `integer`, `Mature`: `boolean`, `Name`: `character varying`, `Slug`: `character varying`, `Tags`: `ARRAYtext`}
+	designDBTypes = map[string]string{`ArtistID`: `integer`, `CategoryTags`: `ARRAYtext`, `Description`: `text`, `ID`: `integer`, `Mature`: `boolean`, `Name`: `text`, `Slug`: `text`, `Tags`: `ARRAYtext`}
 	_             = bytes.MinRead
 )
 

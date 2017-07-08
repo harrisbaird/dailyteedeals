@@ -42,8 +42,8 @@ type userL struct{}
 
 var (
 	userColumns               = []string{"id", "email", "admin", "api_access", "api_token", "encrypted_password"}
-	userColumnsWithoutDefault = []string{"email", "api_token"}
-	userColumnsWithDefault    = []string{"id", "admin", "api_access", "encrypted_password"}
+	userColumnsWithoutDefault = []string{"id", "email", "api_token", "encrypted_password"}
+	userColumnsWithDefault    = []string{"admin", "api_access"}
 	userPrimaryKeyColumns     = []string{"id"}
 )
 

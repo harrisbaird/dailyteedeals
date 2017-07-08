@@ -3,44 +3,42 @@ package models_ext_test
 import (
 	"testing"
 
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
-
 	"github.com/harrisbaird/dailyteedeals/models"
 	. "github.com/harrisbaird/dailyteedeals/models_ext"
 	"github.com/nbio/st"
+	"github.com/vattle/sqlboiler/boil"
 	"github.com/vattle/sqlboiler/types"
 )
 
 func TestFindOrCreateArtist(t *testing.T) {
-	db, mock := newSQLMock()
-	defer db.Close()
-
 	testCases := []struct {
-		name      string
-		createNew bool
+		name               string
+		createNew          bool
+		artistsCountChange int
 	}{
-		{"New", true},
-		{"Existing", false},
+		{"New", true, 1},
+		{"Existing", false, 0},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
+			RunInTestTransaction(func(db boil.Executor) {
+				var artist *models.Artist
+				var err error
 
-			rows := sqlmock.NewRows([]string{"id", "name", "slug", "urls", "tags"})
+				if !tt.createNew {
+					CreateArtistFixtures(db)
+				}
 
-			if tt.createNew {
-				mock.ExpectQuery("SELECT \\* FROM \"artists\"").WillReturnRows(rows)
-				mock.ExpectQuery("INSERT INTO \"artists\"").
-					WithArgs("Theduc", sqlmock.AnyArg(), "{\"http://neatoshop.com/artist/Theduc\",\"http://teepublic.com/user/theduc\"}", "{\"theduc\"}").
-					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-			} else {
-				mock.ExpectQuery("SELECT \\* FROM \"artists\"").WillReturnRows(rows.AddRow(1, "Theduc", "54501-theduc", "{\"http://neatoshop.com/artist/Theduc\",\"http://teepublic.com/user/theduc\"}", "{\"theduc\"}"))
-			}
+				countDiff := TableCountDiff(db, "artists", func() {
+					artist, err = FindOrCreateArtist(db, "theduc", []string{"invalid-domain", "https://www.teepublic.com/user/theduc", "https://www.neatoshop.com/artist/Theduc"})
+				})
 
-			artist, err := FindOrCreateArtist(db, "theduc", []string{"invalid-domain", "https://www.teepublic.com/user/theduc", "https://www.neatoshop.com/artist/Theduc"})
-			st.Expect(t, err, nil)
-			st.Expect(t, validateSlug(artist.Slug), true)
-			st.Expect(t, mock.ExpectationsWereMet() != nil, false)
+				st.Expect(t, err, nil)
+				st.Reject(t, artist, nil)
+				st.Expect(t, countDiff, tt.artistsCountChange)
+				st.Expect(t, ValidSlug.MatchString(artist.Slug), true)
+			})
 		})
 	}
 }
@@ -71,6 +69,7 @@ func TestArtistAppendWhitelistedURLS(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			artist := models.Artist{Urls: tt.initial}
 			ArtistAppendWhitelistedUrls(&artist, tt.have)
 			st.Expect(t, artist.Urls, tt.want)
@@ -79,20 +78,13 @@ func TestArtistAppendWhitelistedURLS(t *testing.T) {
 }
 
 func TestArtistHooks(t *testing.T) {
-	db, mock := newSQLMock()
-	defer db.Close()
+	RunInTestTransaction(func(db boil.Executor) {
+		artist := models.Artist{Name: "   test artist  ",
+			Urls: []string{"http://www.google.com", "", "https://othersite.com"},
+			Tags: []string{"other artist alias"}}
+		err := artist.Insert(db)
 
-	artist := models.Artist{Name: "   test artist  ",
-		Urls: []string{"http://www.google.com", "", "https://othersite.com"},
-		Tags: []string{"other artist alias"}}
-
-	mock.ExpectQuery("INSERT INTO \"artists\"").
-		WithArgs("Test Artist", sqlmock.AnyArg(), "{\"http://google.com\",\"http://othersite.com\"}", "{\"otherartistalias\",\"testartist\"}").
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-
-	err := artist.Insert(db)
-
-	st.Expect(t, err, nil)
-	st.Expect(t, validateSlug(artist.Slug), true)
-	st.Expect(t, mock.ExpectationsWereMet(), nil)
+		st.Expect(t, err, nil)
+		st.Expect(t, ValidSlug.MatchString(artist.Slug), true)
+	})
 }

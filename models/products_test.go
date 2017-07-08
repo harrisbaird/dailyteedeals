@@ -745,7 +745,7 @@ func testProductsSelect(t *testing.T) {
 }
 
 var (
-	productDBTypes = map[string]string{`Active`: `boolean`, `ActiveAt`: `timestamp without time zone`, `Deal`: `boolean`, `DesignID`: `integer`, `ExpiresAt`: `timestamp without time zone`, `ID`: `integer`, `ImageBackground`: `text`, `ImagePrimary`: `text`, `ImageUpdatedAt`: `date`, `LastChance`: `boolean`, `Prices`: `hstore`, `SiteID`: `integer`, `Slug`: `character varying`, `Tags`: `ARRAYtext`, `URL`: `character varying`}
+	productDBTypes = map[string]string{`Active`: `boolean`, `ActiveAt`: `timestamp without time zone`, `Deal`: `boolean`, `DesignID`: `integer`, `ExpiresAt`: `timestamp without time zone`, `ID`: `integer`, `ImageBackground`: `text`, `ImageUpdatedAt`: `date`, `LastChance`: `boolean`, `Prices`: `hstore`, `SiteID`: `integer`, `Slug`: `text`, `Tags`: `ARRAYtext`, `URL`: `text`}
 	_              = bytes.MinRead
 )
 

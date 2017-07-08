@@ -680,7 +680,7 @@ func testSitesSelect(t *testing.T) {
 }
 
 var (
-	siteDBTypes = map[string]string{`Active`: `boolean`, `AffiliateURL`: `character varying`, `DealScraper`: `boolean`, `DisplayOrder`: `integer`, `DomainName`: `character varying`, `FullScraper`: `boolean`, `ID`: `integer`, `ImageTrimPixels`: `integer`, `Name`: `character varying`, `Slug`: `character varying`}
+	siteDBTypes = map[string]string{`Active`: `boolean`, `AffiliateURL`: `text`, `DealScraper`: `boolean`, `DisplayOrder`: `integer`, `DomainName`: `text`, `FullScraper`: `boolean`, `ID`: `integer`, `Name`: `text`, `Slug`: `text`}
 	_           = bytes.MinRead
 )
 

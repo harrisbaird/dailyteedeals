@@ -15,6 +15,7 @@ import "testing"
 func TestParent(t *testing.T) {
 	t.Run("Artists", testArtists)
 	t.Run("Designs", testDesigns)
+	t.Run("GooseDBVersions", testGooseDBVersions)
 	t.Run("Products", testProducts)
 	t.Run("Sites", testSites)
 	t.Run("Users", testUsers)
@@ -23,6 +24,7 @@ func TestParent(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Run("Artists", testArtistsDelete)
 	t.Run("Designs", testDesignsDelete)
+	t.Run("GooseDBVersions", testGooseDBVersionsDelete)
 	t.Run("Products", testProductsDelete)
 	t.Run("Sites", testSitesDelete)
 	t.Run("Users", testUsersDelete)
@@ -31,6 +33,7 @@ func TestDelete(t *testing.T) {
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Artists", testArtistsQueryDeleteAll)
 	t.Run("Designs", testDesignsQueryDeleteAll)
+	t.Run("GooseDBVersions", testGooseDBVersionsQueryDeleteAll)
 	t.Run("Products", testProductsQueryDeleteAll)
 	t.Run("Sites", testSitesQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
@@ -39,6 +42,7 @@ func TestQueryDeleteAll(t *testing.T) {
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Artists", testArtistsSliceDeleteAll)
 	t.Run("Designs", testDesignsSliceDeleteAll)
+	t.Run("GooseDBVersions", testGooseDBVersionsSliceDeleteAll)
 	t.Run("Products", testProductsSliceDeleteAll)
 	t.Run("Sites", testSitesSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
@@ -47,6 +51,7 @@ func TestSliceDeleteAll(t *testing.T) {
 func TestExists(t *testing.T) {
 	t.Run("Artists", testArtistsExists)
 	t.Run("Designs", testDesignsExists)
+	t.Run("GooseDBVersions", testGooseDBVersionsExists)
 	t.Run("Products", testProductsExists)
 	t.Run("Sites", testSitesExists)
 	t.Run("Users", testUsersExists)
@@ -55,6 +60,7 @@ func TestExists(t *testing.T) {
 func TestFind(t *testing.T) {
 	t.Run("Artists", testArtistsFind)
 	t.Run("Designs", testDesignsFind)
+	t.Run("GooseDBVersions", testGooseDBVersionsFind)
 	t.Run("Products", testProductsFind)
 	t.Run("Sites", testSitesFind)
 	t.Run("Users", testUsersFind)
@@ -63,6 +69,7 @@ func TestFind(t *testing.T) {
 func TestBind(t *testing.T) {
 	t.Run("Artists", testArtistsBind)
 	t.Run("Designs", testDesignsBind)
+	t.Run("GooseDBVersions", testGooseDBVersionsBind)
 	t.Run("Products", testProductsBind)
 	t.Run("Sites", testSitesBind)
 	t.Run("Users", testUsersBind)
@@ -71,6 +78,7 @@ func TestBind(t *testing.T) {
 func TestOne(t *testing.T) {
 	t.Run("Artists", testArtistsOne)
 	t.Run("Designs", testDesignsOne)
+	t.Run("GooseDBVersions", testGooseDBVersionsOne)
 	t.Run("Products", testProductsOne)
 	t.Run("Sites", testSitesOne)
 	t.Run("Users", testUsersOne)
@@ -79,6 +87,7 @@ func TestOne(t *testing.T) {
 func TestAll(t *testing.T) {
 	t.Run("Artists", testArtistsAll)
 	t.Run("Designs", testDesignsAll)
+	t.Run("GooseDBVersions", testGooseDBVersionsAll)
 	t.Run("Products", testProductsAll)
 	t.Run("Sites", testSitesAll)
 	t.Run("Users", testUsersAll)
@@ -87,6 +96,7 @@ func TestAll(t *testing.T) {
 func TestCount(t *testing.T) {
 	t.Run("Artists", testArtistsCount)
 	t.Run("Designs", testDesignsCount)
+	t.Run("GooseDBVersions", testGooseDBVersionsCount)
 	t.Run("Products", testProductsCount)
 	t.Run("Sites", testSitesCount)
 	t.Run("Users", testUsersCount)
@@ -95,6 +105,7 @@ func TestCount(t *testing.T) {
 func TestHooks(t *testing.T) {
 	t.Run("Artists", testArtistsHooks)
 	t.Run("Designs", testDesignsHooks)
+	t.Run("GooseDBVersions", testGooseDBVersionsHooks)
 	t.Run("Products", testProductsHooks)
 	t.Run("Sites", testSitesHooks)
 	t.Run("Users", testUsersHooks)
@@ -105,6 +116,8 @@ func TestInsert(t *testing.T) {
 	t.Run("Artists", testArtistsInsertWhitelist)
 	t.Run("Designs", testDesignsInsert)
 	t.Run("Designs", testDesignsInsertWhitelist)
+	t.Run("GooseDBVersions", testGooseDBVersionsInsert)
+	t.Run("GooseDBVersions", testGooseDBVersionsInsertWhitelist)
 	t.Run("Products", testProductsInsert)
 	t.Run("Products", testProductsInsertWhitelist)
 	t.Run("Sites", testSitesInsert)
@@ -172,6 +185,7 @@ func TestToManyRemove(t *testing.T) {}
 func TestReload(t *testing.T) {
 	t.Run("Artists", testArtistsReload)
 	t.Run("Designs", testDesignsReload)
+	t.Run("GooseDBVersions", testGooseDBVersionsReload)
 	t.Run("Products", testProductsReload)
 	t.Run("Sites", testSitesReload)
 	t.Run("Users", testUsersReload)
@@ -180,6 +194,7 @@ func TestReload(t *testing.T) {
 func TestReloadAll(t *testing.T) {
 	t.Run("Artists", testArtistsReloadAll)
 	t.Run("Designs", testDesignsReloadAll)
+	t.Run("GooseDBVersions", testGooseDBVersionsReloadAll)
 	t.Run("Products", testProductsReloadAll)
 	t.Run("Sites", testSitesReloadAll)
 	t.Run("Users", testUsersReloadAll)
@@ -188,6 +203,7 @@ func TestReloadAll(t *testing.T) {
 func TestSelect(t *testing.T) {
 	t.Run("Artists", testArtistsSelect)
 	t.Run("Designs", testDesignsSelect)
+	t.Run("GooseDBVersions", testGooseDBVersionsSelect)
 	t.Run("Products", testProductsSelect)
 	t.Run("Sites", testSitesSelect)
 	t.Run("Users", testUsersSelect)
@@ -196,6 +212,7 @@ func TestSelect(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	t.Run("Artists", testArtistsUpdate)
 	t.Run("Designs", testDesignsUpdate)
+	t.Run("GooseDBVersions", testGooseDBVersionsUpdate)
 	t.Run("Products", testProductsUpdate)
 	t.Run("Sites", testSitesUpdate)
 	t.Run("Users", testUsersUpdate)
@@ -204,6 +221,7 @@ func TestUpdate(t *testing.T) {
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Artists", testArtistsSliceUpdateAll)
 	t.Run("Designs", testDesignsSliceUpdateAll)
+	t.Run("GooseDBVersions", testGooseDBVersionsSliceUpdateAll)
 	t.Run("Products", testProductsSliceUpdateAll)
 	t.Run("Sites", testSitesSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
@@ -212,6 +230,7 @@ func TestSliceUpdateAll(t *testing.T) {
 func TestUpsert(t *testing.T) {
 	t.Run("Artists", testArtistsUpsert)
 	t.Run("Designs", testDesignsUpsert)
+	t.Run("GooseDBVersions", testGooseDBVersionsUpsert)
 	t.Run("Products", testProductsUpsert)
 	t.Run("Sites", testSitesUpsert)
 	t.Run("Users", testUsersUpsert)

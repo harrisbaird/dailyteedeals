@@ -72,6 +72,16 @@ func PostgresConnectionString() string {
 		config.PostgresSSLMode)
 }
 
+func PostgresTestConnectionString() string {
+	return drivers.PostgresBuildQueryString(
+		"postgres",
+		"",
+		"dailyteedeals_test",
+		"127.0.0.1",
+		5432,
+		"disable")
+}
+
 func NewMinioClient() *minio.Client {
 	client, err := minio.New(config.AWSS3Endpoint, config.AWSAccessKeyID, config.AWSSecretAccessKey, true)
 	if err != nil {

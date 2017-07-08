@@ -23,16 +23,15 @@ import (
 
 // Site is an object representing the database table.
 type Site struct {
-	ID              int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Name            string      `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Slug            string      `boil:"slug" json:"slug" toml:"slug" yaml:"slug"`
-	DomainName      string      `boil:"domain_name" json:"domain_name" toml:"domain_name" yaml:"domain_name"`
-	AffiliateURL    null.String `boil:"affiliate_url" json:"affiliate_url,omitempty" toml:"affiliate_url" yaml:"affiliate_url,omitempty"`
-	DealScraper     bool        `boil:"deal_scraper" json:"deal_scraper" toml:"deal_scraper" yaml:"deal_scraper"`
-	FullScraper     bool        `boil:"full_scraper" json:"full_scraper" toml:"full_scraper" yaml:"full_scraper"`
-	Active          bool        `boil:"active" json:"active" toml:"active" yaml:"active"`
-	DisplayOrder    int         `boil:"display_order" json:"display_order" toml:"display_order" yaml:"display_order"`
-	ImageTrimPixels int         `boil:"image_trim_pixels" json:"image_trim_pixels" toml:"image_trim_pixels" yaml:"image_trim_pixels"`
+	ID           int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Name         string      `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Slug         string      `boil:"slug" json:"slug" toml:"slug" yaml:"slug"`
+	DomainName   string      `boil:"domain_name" json:"domain_name" toml:"domain_name" yaml:"domain_name"`
+	AffiliateURL null.String `boil:"affiliate_url" json:"affiliate_url,omitempty" toml:"affiliate_url" yaml:"affiliate_url,omitempty"`
+	DealScraper  bool        `boil:"deal_scraper" json:"deal_scraper" toml:"deal_scraper" yaml:"deal_scraper"`
+	FullScraper  bool        `boil:"full_scraper" json:"full_scraper" toml:"full_scraper" yaml:"full_scraper"`
+	Active       bool        `boil:"active" json:"active" toml:"active" yaml:"active"`
+	DisplayOrder int         `boil:"display_order" json:"display_order" toml:"display_order" yaml:"display_order"`
 
 	R *siteR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L siteL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -47,9 +46,9 @@ type siteR struct {
 type siteL struct{}
 
 var (
-	siteColumns               = []string{"id", "name", "slug", "domain_name", "affiliate_url", "deal_scraper", "full_scraper", "active", "display_order", "image_trim_pixels"}
-	siteColumnsWithoutDefault = []string{"name", "slug", "domain_name", "affiliate_url"}
-	siteColumnsWithDefault    = []string{"id", "deal_scraper", "full_scraper", "active", "display_order", "image_trim_pixels"}
+	siteColumns               = []string{"id", "name", "slug", "domain_name", "affiliate_url", "deal_scraper", "full_scraper", "active", "display_order"}
+	siteColumnsWithoutDefault = []string{"id", "name", "slug", "domain_name", "affiliate_url"}
+	siteColumnsWithDefault    = []string{"deal_scraper", "full_scraper", "active", "display_order"}
 	sitePrimaryKeyColumns     = []string{"id"}
 )
 

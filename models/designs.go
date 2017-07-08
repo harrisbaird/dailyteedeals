@@ -23,15 +23,14 @@ import (
 
 // Design is an object representing the database table.
 type Design struct {
-	ID                  int               `boil:"id" json:"id" toml:"id" yaml:"id"`
-	ArtistID            int               `boil:"artist_id" json:"artist_id" toml:"artist_id" yaml:"artist_id"`
-	Name                string            `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Slug                string            `boil:"slug" json:"slug" toml:"slug" yaml:"slug"`
-	Description         string            `boil:"description" json:"description" toml:"description" yaml:"description"`
-	Tags                types.StringArray `boil:"tags" json:"tags,omitempty" toml:"tags" yaml:"tags,omitempty"`
-	CategoryTags        types.StringArray `boil:"category_tags" json:"category_tags,omitempty" toml:"category_tags" yaml:"category_tags,omitempty"`
-	Mature              bool              `boil:"mature" json:"mature" toml:"mature" yaml:"mature"`
-	ActiveProductsCount int               `boil:"active_products_count" json:"active_products_count" toml:"active_products_count" yaml:"active_products_count"`
+	ID           int               `boil:"id" json:"id" toml:"id" yaml:"id"`
+	ArtistID     int               `boil:"artist_id" json:"artist_id" toml:"artist_id" yaml:"artist_id"`
+	Name         string            `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Slug         string            `boil:"slug" json:"slug" toml:"slug" yaml:"slug"`
+	Description  string            `boil:"description" json:"description" toml:"description" yaml:"description"`
+	Tags         types.StringArray `boil:"tags" json:"tags,omitempty" toml:"tags" yaml:"tags,omitempty"`
+	CategoryTags types.StringArray `boil:"category_tags" json:"category_tags,omitempty" toml:"category_tags" yaml:"category_tags,omitempty"`
+	Mature       bool              `boil:"mature" json:"mature" toml:"mature" yaml:"mature"`
 
 	R *designR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L designL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -47,9 +46,9 @@ type designR struct {
 type designL struct{}
 
 var (
-	designColumns               = []string{"id", "artist_id", "name", "slug", "description", "tags", "category_tags", "mature", "active_products_count"}
-	designColumnsWithoutDefault = []string{"artist_id", "name", "slug"}
-	designColumnsWithDefault    = []string{"id", "description", "tags", "category_tags", "mature", "active_products_count"}
+	designColumns               = []string{"id", "artist_id", "name", "slug", "description", "tags", "category_tags", "mature"}
+	designColumnsWithoutDefault = []string{"id", "artist_id", "name", "slug"}
+	designColumnsWithDefault    = []string{"description", "tags", "category_tags", "mature"}
 	designPrimaryKeyColumns     = []string{"id"}
 )
 

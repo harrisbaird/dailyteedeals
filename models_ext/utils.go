@@ -60,7 +60,7 @@ func MakeSlug(slug string) string {
 	slug = strings.Replace(slug, " ", "-", -1)
 	slug = strings.ToLower(slug)
 
-	id := rangeIn(1000, 99999)
+	id := rangeIn(10000, 99999)
 
 	return fmt.Sprintf("%d-%s", id, slug)
 }

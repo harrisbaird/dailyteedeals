@@ -680,7 +680,7 @@ func testArtistsSelect(t *testing.T) {
 }
 
 var (
-	artistDBTypes = map[string]string{`ID`: `integer`, `Name`: `character varying`, `Slug`: `character varying`, `Tags`: `ARRAYtext`, `Urls`: `ARRAYtext`}
+	artistDBTypes = map[string]string{`ID`: `integer`, `Name`: `text`, `Slug`: `text`, `Tags`: `ARRAYtext`, `Urls`: `ARRAYtext`}
 	_             = bytes.MinRead
 )
 

@@ -16,6 +16,7 @@ import (
 func init() {
 	models.AddArtistHook(boil.BeforeInsertHook, artistSaveHook)
 	models.AddArtistHook(boil.BeforeUpdateHook, artistSaveHook)
+	models.AddArtistHook(boil.BeforeUpsertHook, artistSaveHook)
 }
 
 // FindOrCreateArtist convenience function.

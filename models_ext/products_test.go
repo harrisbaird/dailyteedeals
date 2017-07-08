@@ -1,51 +1,46 @@
 package models_ext_test
 
-import (
-	"testing"
+// import (
+// 	. "github.com/harrisbaird/dailyteedeals/models_ext"
+// )
 
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+// func TestMarkProductsInactive(t *testing.T) {
+// 	type args struct {
+// 		siteID int
+// 		deal   bool
+// 	}
 
-	. "github.com/harrisbaird/dailyteedeals/models_ext"
-	"github.com/nbio/st"
-)
+// 	testCases := []struct {
+// 		name    string
+// 		args    args
+// 		wantIDS []int
+// 	}{
+// 		{"deal", args{1, true}, []int{2, 3, 4}},
+// 		{"non-deal", args{1, false}, []int{1, 3, 4}},
+// 	}
 
-// func TestX(t *testing.T) {
-// 	db, mock := newSQLMock()
-// 	defer db.Close()
+// 	for _, tt := range testCases {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			RunInTestTransaction(func(db boil.Executor) {
+// 				CreateProductFixtures(db)
+// 				err := MarkProductsInactive(db, tt.args.siteID, tt.args.deal)
+// 				boil.DebugMode = true
+// 				products, err := models.Products(db,
+// 					qm.Select("id"),
+// 					qm.Where("active = ?", true),
+// 					qm.OrderBy("id ASC")).All()
 
-// 	mock.ExpectExec("SELECT \"products\".* FROM \"products\" INNER JOIN sites on products.site_id = sites.id WHERE (products.active = true) AND (products.deal = true) ORDER BY sites.display_order ASC, products.site_id ASC, products.last_chance ASC, products.slug ASC;")
+// 				spew.Dump(products)
 
-// 	spew.Dump(ActiveDeals(db))
+// 				var ids []int
+// 				for _, product := range products {
+// 					ids = append(ids, product.ID)
+// 				}
 
+// 				st.Expect(t, err, nil)
+// 				st.Expect(t, ids, tt.wantIDS)
+// 				st.Expect(t, err != nil, false)
+// 			})
+// 		})
+// 	}
 // }
-
-func TestMarkProductsInactive(t *testing.T) {
-	type args struct {
-		siteID int
-		deal   bool
-	}
-
-	testCases := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{"deal", args{1, true}, false},
-		{"non-deal", args{1, false}, false},
-	}
-
-	db, mock := newSQLMock()
-	defer db.Close()
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			mock.ExpectExec("UPDATE \"products\"").
-				WithArgs(false, tt.args.siteID, tt.args.deal).
-				WillReturnResult(sqlmock.NewResult(1, 1))
-
-			err := MarkProductsInactive(db, tt.args.siteID, tt.args.deal)
-			st.Expect(t, err != nil, tt.wantErr)
-			st.Expect(t, mock.ExpectationsWereMet() != nil, false)
-		})
-	}
-}
