@@ -1,8 +1,15 @@
+dist: trusty
 language: go
-
 go:
   - 1.8
+before_script:
+  - cp sqlboiler.travis.toml sqlboiler.toml
+  - psql -c 'create database travis_ci_test;' -U postgres -h localhost
 install: 
   - go get github.com/golang/dep/cmd/dep
   - dep ensure
 script: go test -cover $(go list ./... | grep -v /vendor/)
+services:
+  - postgresql
+addons:
+  postgresql: "9.5"
