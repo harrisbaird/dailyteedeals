@@ -1,2 +1,3 @@
 [![Build Status](https://travis-ci.org/harrisbaird/dailyteedeals.svg?branch=master)](https://travis-ci.org/harrisbaird/dailyteedeals)
 [![Coverage Status](https://coveralls.io/repos/github/harrisbaird/dailyteedeals/badge.svg?branch=master)](https://coveralls.io/github/harrisbaird/dailyteedeals?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/harrisbaird/dailyteedeals)](https://goreportcard.com/report/github.com/harrisbaird/dailyteedeals)
