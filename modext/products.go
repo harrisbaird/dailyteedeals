@@ -1,8 +1,9 @@
-package models_ext
+package modext
 
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/disintegration/imaging"
@@ -47,6 +48,10 @@ func ActiveDeals(db boil.Executor) (models.ProductSlice, error) {
 	).All()
 }
 
+func FindProductBySlug(db boil.Executor, slug string) (*models.Product, error) {
+	return models.Products(db, qm.Where("slug=?", slug)).One()
+}
+
 // MarkProductsInactive sets products belonging to a site as inactive.
 // It either does all deals or non-deals.
 func MarkProductsInactive(db boil.Executor, siteID int, deal bool) error {
@@ -89,6 +94,23 @@ func UpdateImage(db boil.Executor, p *models.Product, url string) error {
 	p.ImageBackground = utils.ColorToHex(bgColor)
 	p.ImageUpdatedAt = time.Now()
 	return p.Update(db)
+}
+
+func ProductGoURL(product *models.Product) string {
+	return fmt.Sprintf("https://go.dailyteedeals.com/%s", product.Slug)
+}
+
+func ProductBuyURL(product *models.Product) string {
+	if product.R.Site.AffiliateURL.String != "" {
+		return product.URL
+	}
+
+	return fmt.Sprintf(product.R.Site.AffiliateURL.String, url.QueryEscape(product.URL))
+}
+
+func ProductImageURL(product *models.Product, size int) string {
+	return fmt.Sprintf("https://%s/thumbs/%d/%d.jpg?v=%d", config.App.DomainImages,
+		product.ID, size, product.ImageUpdatedAt.Unix())
 }
 
 func productSaveHook(db boil.Executor, p *models.Product) error {

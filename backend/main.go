@@ -13,7 +13,7 @@ import (
 	"github.com/gocraft/work"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/harrisbaird/dailyteedeals/models"
-	"github.com/harrisbaird/dailyteedeals/models_ext"
+	"github.com/harrisbaird/dailyteedeals/modext"
 	"github.com/vattle/sqlboiler/boil"
 	"github.com/vattle/sqlboiler/types"
 )
@@ -26,17 +26,19 @@ const (
 var (
 	noRetryOptions = work.JobOptions{MaxFails: 1}
 	enqueuer       *work.Enqueuer
+	pool           *work.WorkerPool
 )
 
 type JobContext struct {
 	DB      boil.Executor
 	SiteID  int
-	JobType models_ext.SiteJobType
+	JobType modext.SiteJobType
 }
 
-func Start(db boil.Executor) *work.WorkerPool {
+func Start(db boil.Executor) {
+	log.Println("Starting backend")
 	redisPool := &redis.Pool{Dial: func() (redis.Conn, error) { return redis.Dial("tcp", config.RedisConnectionString()) }}
-	pool := work.NewWorkerPool(JobContext{DB: db}, 10, jobNamespace, redisPool)
+	pool = work.NewWorkerPool(JobContext{DB: db}, 10, jobNamespace, redisPool)
 	enqueuer = work.NewEnqueuer(jobNamespace, redisPool)
 
 	pool.Middleware(func(c *JobContext, job *work.Job, next work.NextMiddlewareFunc) error {
@@ -57,19 +59,11 @@ func Start(db boil.Executor) *work.WorkerPool {
 	pool.JobWithOptions("parse_feed", noRetryOptions, (*JobContext).ParseFeed)
 	pool.JobWithOptions("parse_item", noRetryOptions, (*JobContext).ParseItem)
 	pool.Start()
+}
 
-	site, err := models.Sites(db).One()
-	if err != nil {
-		panic(err)
-	}
-	scrapydJobID, err := ScrapydSchedule("qwertee_deal")
-	if err != nil {
-		panic(err)
-	}
-
-	enqueuer.Enqueue("wait_for_scraper", work.Q{"site_id": site.ID, "deal": true, "scrapyd_job_id": scrapydJobID})
-
-	return pool
+func Stop() {
+	log.Println("Stopping backend")
+	pool.Stop()
 }
 
 func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
@@ -86,13 +80,13 @@ func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
 // ScheduleDeal schedules jobs for active sites which have
 // deal_scraper enabled.
 func (c *JobContext) ScheduleDeal(job *work.Job) error {
-	return c.scheduleJobs(models_ext.SiteDealJobType)
+	return c.scheduleJobs(modext.SiteDealJobType)
 }
 
 // ScheduleFull schedules jobs for active sites which have
 // full_scraper enabled.
 func (c *JobContext) ScheduleFull(job *work.Job) error {
-	return c.scheduleJobs(models_ext.SiteFullJobType)
+	return c.scheduleJobs(modext.SiteFullJobType)
 }
 
 // WaitForScraper waits until scrapyd reports that the job is finished
@@ -123,7 +117,7 @@ func (c *JobContext) ParseFeed(job *work.Job) error {
 	siteID := job.ArgInt64("site_id")
 	deal := job.ArgBool("deal")
 
-	if err := models_ext.MarkProductsInactive(c.DB, int(siteID), deal); err != nil {
+	if err := modext.MarkProductsInactive(c.DB, int(siteID), deal); err != nil {
 		return err
 	}
 
@@ -152,12 +146,12 @@ func (c *JobContext) ParseItem(job *work.Job) error {
 		return err
 	}
 
-	artist, err := models_ext.FindOrCreateArtist(c.DB, data.ArtistName, data.ArtistUrls)
+	artist, err := modext.FindOrCreateArtist(c.DB, data.ArtistName, data.ArtistUrls)
 	if err != nil {
 		return err
 	}
 
-	design, err := models_ext.FindOrCreateDesign(c.DB, artist.ID, data.Name)
+	design, err := modext.FindOrCreateDesign(c.DB, artist.ID, data.Name)
 	if err != nil {
 		return err
 	}
@@ -187,11 +181,11 @@ func (c *JobContext) ParseItem(job *work.Job) error {
 
 	spew.Dump(err)
 
-	return models_ext.UpdateImageIfExpired(c.DB, &product, data.ImageURL)
+	return modext.UpdateImageIfExpired(c.DB, &product, data.ImageURL)
 }
 
-func (c *JobContext) scheduleJobs(jobType models_ext.SiteJobType) error {
-	sites, err := models_ext.ActiveSitesWithJobType(c.DB, jobType)
+func (c *JobContext) scheduleJobs(jobType modext.SiteJobType) error {
+	sites, err := modext.ActiveSitesWithJobType(c.DB, jobType)
 	if err != nil {
 		return err
 	}
@@ -204,7 +198,7 @@ func (c *JobContext) scheduleJobs(jobType models_ext.SiteJobType) error {
 		_, err = enqueuer.EnqueueIn("wait_for_scraper", recheckRateSeconds, work.Q{
 			"site_id":        site.ID,
 			"scrapyd_job_id": scrapydJobID,
-			"deal":           jobType == models_ext.SiteDealJobType,
+			"deal":           jobType == modext.SiteDealJobType,
 		})
 		if err != nil {
 			log.Println(err)

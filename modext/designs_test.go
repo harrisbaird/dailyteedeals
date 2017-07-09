@@ -1,10 +1,10 @@
-package models_ext_test
+package modext_test
 
 import (
 	"testing"
 
 	"github.com/harrisbaird/dailyteedeals/models"
-	. "github.com/harrisbaird/dailyteedeals/models_ext"
+	. "github.com/harrisbaird/dailyteedeals/modext"
 	"github.com/nbio/st"
 	"github.com/vattle/sqlboiler/boil"
 )

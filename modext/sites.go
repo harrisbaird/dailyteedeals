@@ -1,4 +1,4 @@
-package models_ext
+package modext
 
 import (
 	"github.com/harrisbaird/dailyteedeals/models"
@@ -30,4 +30,12 @@ var (
 
 func ActiveSitesWithJobType(db boil.Executor, jobType SiteJobType) (models.SiteSlice, error) {
 	return models.Sites(db, qm.Where("active=? AND ?=?", true, jobType.DatabaseField(), true)).All()
+}
+
+func ActiveSites(db boil.Executor) (models.SiteSlice, error) {
+	return models.Sites(db, qm.Where("active=?")).All()
+}
+
+func FindSiteBySlug(db boil.Executor, slug string) (*models.Site, error) {
+	return models.Sites(db, qm.Where("slug=?", slug)).One()
 }

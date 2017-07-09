@@ -1,7 +1,7 @@
-package models_ext_test
+package modext_test
 
 // import (
-// 	. "github.com/harrisbaird/dailyteedeals/models_ext"
+// 	. "github.com/harrisbaird/dailyteedeals/modext"
 // )
 
 // func TestMarkProductsInactive(t *testing.T) {

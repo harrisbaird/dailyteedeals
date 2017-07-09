@@ -2,10 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
+	"github.com/harrisbaird/dailyteedeals/api"
 	"github.com/harrisbaird/dailyteedeals/backend"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/vattle/sqlboiler/boil"
@@ -21,10 +22,13 @@ func main() {
 		boil.DebugMode = true
 	}
 
-	bs := backend.Start(db)
-	defer bs.Stop()
+	api.Start(db)
+	defer api.Stop()
 
-	fmt.Printf("Daily Tee Deals is running in %s mode.\n", config.ModeString())
+	backend.Start(db)
+	defer backend.Stop()
+
+	log.Printf("App is running in %s mode.\n", config.EnvironmentString())
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill)

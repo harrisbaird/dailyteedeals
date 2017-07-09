@@ -1,11 +1,11 @@
-package models_ext_test
+package modext_test
 
 import (
 	"testing"
 
 	"strings"
 
-	. "github.com/harrisbaird/dailyteedeals/models_ext"
+	. "github.com/harrisbaird/dailyteedeals/modext"
 	"github.com/nbio/st"
 )
 

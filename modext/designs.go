@@ -1,4 +1,4 @@
-package models_ext
+package modext
 
 import (
 	"database/sql"
@@ -28,6 +28,10 @@ func FindOrCreateDesign(db boil.Executor, artistID int, name string) (*models.De
 	}
 
 	return design, err
+}
+
+func FindDesignBySlug(db boil.Executor, slug string) (*models.Design, error) {
+	return models.Designs(db, qm.Where("slug=?", slug)).One()
 }
 
 func designSaveHook(exec boil.Executor, d *models.Design) error {

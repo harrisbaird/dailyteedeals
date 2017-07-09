@@ -9,7 +9,8 @@ import (
 	"github.com/vattle/sqlboiler/bdb/drivers"
 )
 
-var config = parseConfig()
+// App contains app configuration
+var App = parseConfig()
 
 type Config struct {
 	PostgresHost              string `env:"POSTGRES_HOST" envDefault:"localhost"`
@@ -19,6 +20,14 @@ type Config struct {
 	PostgresDatabase          string `env:"POSTGRES_DATABASE" envDefault:"dailyteedeals"`
 	PostgresConnectionTimeout int    `env:"POSTGRES_CONNECTION_TIMEOUT" envDefault:"30"`
 	PostgresSSLMode           string `env:"POSTGRES_SSL_MODE" envDefault:"disable"`
+
+	DomainAPI    string `env:"DOMAIN_API" envDefault:"api.dailyteedeals.com"`
+	DomainGo     string `env:"DOMAIN_GO" envDefault:"go.dailyteedeals.com"`
+	DomainImages string `env:"DOMAIN_IMAGES" envDefault:"images-17e7.kxcdn.com"`
+
+	HTTPListenAddr string `env:"HTTP_LISTEN_ADDR" envDefault:"0.0.0.0:8080"`
+
+	Env string `env:"APP_ENV" envDefault:"development"`
 
 	AWSAccessKeyID     string `env:"AWS_ACCESS_KEY_ID,required"`
 	AWSSecretAccessKey string `env:"AWS_SECRET_ACCESS_KEY,required"`
@@ -30,12 +39,10 @@ type Config struct {
 
 	RedisHost string `env:"REDIS_HOST" envDefault:"redis"`
 	RedisPort int    `env:"REDIS_PORT" envDefault:"6379"`
-
-	IsProduction bool `env:"PRODUCTION"`
 }
 
 func IsProduction() bool {
-	return config.IsProduction
+	return App.Env == "production"
 }
 
 func IsDevelopment() bool {
@@ -46,7 +53,7 @@ func IsTest() bool {
 	return flag.Lookup("test.v") != nil
 }
 
-func ModeString() string {
+func EnvironmentString() string {
 	if IsProduction() {
 		return "production"
 	}
@@ -55,21 +62,21 @@ func ModeString() string {
 }
 
 func ScrapydURL() string {
-	return fmt.Sprintf("http://%s:%d", config.ScrapydHost, config.ScrapydPort)
+	return fmt.Sprintf("http://%s:%d", App.ScrapydHost, App.ScrapydPort)
 }
 
 func RedisConnectionString() string {
-	return fmt.Sprintf("%s:%d", config.RedisHost, config.RedisPort)
+	return fmt.Sprintf("%s:%d", App.RedisHost, App.RedisPort)
 }
 
 func PostgresConnectionString() string {
 	return drivers.PostgresBuildQueryString(
-		config.PostgresUser,
-		config.PostgresPassword,
-		config.PostgresDatabase,
-		config.PostgresHost,
-		config.PostgresPort,
-		config.PostgresSSLMode)
+		App.PostgresUser,
+		App.PostgresPassword,
+		App.PostgresDatabase,
+		App.PostgresHost,
+		App.PostgresPort,
+		App.PostgresSSLMode)
 }
 
 func PostgresTestConnectionString() string {
@@ -83,7 +90,7 @@ func PostgresTestConnectionString() string {
 }
 
 func NewMinioClient() *minio.Client {
-	client, err := minio.New(config.AWSS3Endpoint, config.AWSAccessKeyID, config.AWSSecretAccessKey, true)
+	client, err := minio.New(App.AWSS3Endpoint, App.AWSAccessKeyID, App.AWSSecretAccessKey, true)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +98,7 @@ func NewMinioClient() *minio.Client {
 }
 
 func S3Bucket() string {
-	return config.AWSS3Bucket
+	return App.AWSS3Bucket
 }
 
 func parseConfig() *Config {

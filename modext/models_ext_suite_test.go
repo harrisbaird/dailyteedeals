@@ -1,4 +1,4 @@
-package models_ext_test
+package modext_test
 
 import (
 	"database/sql"
@@ -88,6 +88,20 @@ func CreateSiteFixtures(db boil.Executor) models.SiteSlice {
 		}
 	}
 	return sites
+}
+
+func CreateUserFixtures(db boil.Executor) models.UserSlice {
+	users := models.UserSlice{
+		&models.User{ID: 1, Email: "active_api_user@test.com", APIAccess: true, APIToken: "active_api_user"},
+		&models.User{ID: 2, Email: "inactive_api_user@test.com", APIAccess: false, APIToken: "inactive_api_user"},
+	}
+	for _, user := range users {
+		err := user.Upsert(db, false, []string{"id"}, []string{})
+		if err != nil {
+			panic(err)
+		}
+	}
+	return users
 }
 
 var ValidSlug = regexp.MustCompile(`^\d{5}-[a-z0-9-]+`)

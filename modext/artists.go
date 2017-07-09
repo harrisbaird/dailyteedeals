@@ -1,4 +1,4 @@
-package models_ext
+package modext
 
 import (
 	"database/sql"
