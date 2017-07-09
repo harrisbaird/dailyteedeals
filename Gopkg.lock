@@ -3,9 +3,75 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/AlasdairF/BinSearch"
+  packages = [".","Limit16","Limit24","Limit32","Limit40","Limit48","Limit56","Limit64","LimitVal16","LimitVal24","LimitVal32","LimitVal40","LimitVal48","LimitVal56","LimitVal64","LimitVal8"]
+  revision = "c1ff5b8aa05350a9667e2914531d84e7406b02ff"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/AlasdairF/Conv"
+  packages = ["."]
+  revision = "b55e025a049e6ae1ca76be0fde855af441f89141"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/AlasdairF/Custom"
+  packages = ["."]
+  revision = "1889d7b07a22ffb7d32ea0dd070efe6c5121b0d5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/AlasdairF/Sort"
+  packages = ["IntInt","IntUint16","IntUint32","IntUint64","IntUint8"]
+  revision = "ebdbd9946084bb4997c0deecd158fb5fd7cab8d5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/AlasdairF/Titlecase"
+  packages = ["."]
+  revision = "b5f3674bcc2a10eaeb55a807f5a16a2a44979167"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/AlasdairF/snappy"
+  packages = ["."]
+  revision = "d1c9103b7e943501a7d4f21a89a5b532f31a018f"
+
+[[projects]]
+  name = "github.com/PuerkitoBio/purell"
+  packages = ["."]
+  revision = "0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/PuerkitoBio/urlesc"
+  packages = ["."]
+  revision = "bbf7a2afc14f93e1e0a5c06df524fbd75e5031e5"
+
+[[projects]]
+  name = "github.com/caarlos0/env"
+  packages = ["."]
+  revision = "0cf029d5748c52beb2c9d20c81880cb4bdf8f788"
+  version = "v3.0"
+
+[[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
   name = "github.com/denisenkom/go-mssqldb"
   packages = ["."]
-  revision = "a8b933e3527b526484b3b4de754ce7c179e8bfd0"
+  revision = "99afe8c2a8596ad27b7df63073b0dae68058f67c"
+
+[[projects]]
+  name = "github.com/disintegration/imaging"
+  packages = ["."]
+  revision = "ac27d1805a555e1754fa177216ee07f4e63c30b5"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -14,10 +80,46 @@
   version = "v1.4.2"
 
 [[projects]]
+  name = "github.com/garyburd/redigo"
+  packages = ["internal","redis"]
+  revision = "433969511232c397de61b1442f9fd49ec06ae9ba"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gin-contrib/sse"
+  packages = ["."]
+  revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
+
+[[projects]]
+  name = "github.com/gin-gonic/gin"
+  packages = [".","binding","render"]
+  revision = "d459835d2b077e44f7c9b453505ee29881d5d12d"
+  version = "v1.2"
+
+[[projects]]
+  name = "github.com/go-ini/ini"
+  packages = ["."]
+  revision = "d3de07a94d22b4a0972deb4b96d790c2c0ce8333"
+  version = "v1.28.0"
+
+[[projects]]
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   revision = "a0583e0143b1624142adab07e0e97fe106d99561"
   version = "v1.3"
+
+[[projects]]
+  name = "github.com/gocraft/work"
+  packages = ["."]
+  revision = "67c8dc210ce647e8d8a4206c7f5856ea2390f290"
+  version = "v0.5.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "6a1fa9404c0aebf36c879bc50152edcc953910d2"
 
 [[projects]]
   branch = "master"
@@ -32,10 +134,22 @@
   version = "v1"
 
 [[projects]]
+  name = "github.com/klauspost/compress"
+  packages = ["flate","zlib"]
+  revision = "6c8db69c4b49dd4df1fff66996cf556176d0b9bf"
+  version = "v1.2.1"
+
+[[projects]]
+  name = "github.com/klauspost/cpuid"
+  packages = ["."]
+  revision = "09cded8978dc9e80714c4d85b0322337b0a1e5e0"
+  version = "v1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/lib/pq"
   packages = [".","oid"]
-  revision = "8837942c3e09574accbc5f150e2c5e057189cace"
+  revision = "dd1fe2071026ce53f36a39112e645b4d4f5793a4"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -44,10 +158,34 @@
   version = "v1.7.2"
 
 [[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+  version = "v0.0.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/minio/go-homedir"
+  packages = ["."]
+  revision = "21304a94172ae3a09dee2cd86a12fb6f842138c7"
+
+[[projects]]
+  name = "github.com/minio/minio-go"
+  packages = [".","pkg/credentials","pkg/encrypt","pkg/policy","pkg/s3signer","pkg/s3utils","pkg/set"]
+  revision = "5ca66c9a35ba1cd674484be99dc97aa0973afe12"
+  version = "v3.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "d0303fe809921458f417bcf828397a65db30a7e4"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/nbio/st"
+  packages = ["."]
+  revision = "e9e8d9816f3268def6dcbd2dea03301f40e9de94"
 
 [[projects]]
   branch = "master"
@@ -74,10 +212,28 @@
   version = "v0.8.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/rainycape/unidecode"
+  packages = ["."]
+  revision = "cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c"
+
+[[projects]]
+  name = "github.com/robfig/cron"
+  packages = ["."]
+  revision = "b024fc5ea0e34bc3f83d9941c8d60b0622bfaca4"
+  version = "v1"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/sethgrid/pester"
+  packages = ["."]
+  revision = "99271bb5a99e5769f688c483eabb3c22d71ebf93"
 
 [[projects]]
   branch = "master"
@@ -110,34 +266,58 @@
   revision = "c1de95864d73a5465492829d7cb2dd422b19ac96"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/ugorji/go"
+  packages = ["codec"]
+  revision = "5efa3251c7f7d05e5d9704a69a984ec9f1386a40"
+
+[[projects]]
   name = "github.com/vattle/sqlboiler"
   packages = ["bdb","bdb/drivers","boil","queries","queries/qm","randomize","strmangle","types"]
-  revision = "c00ebe19110044f1c0ba0965bbca9555cf5f0e46"
-  version = "v2.4.1"
+  revision = "82e14d2e1acb4e1b6ef2193858820f9bff6f187c"
+  version = "v2.5.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["md4"]
-  revision = "adbae1b6b6fb4b02448a0fc0dbbc9ba2b95b294d"
+  revision = "08a7dbd3d99261d9ae86ef1b3b8bdb0382fb82cd"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/image"
+  packages = ["bmp","tiff","tiff/lzw"]
+  revision = "426cfd8eeb6e08ab1932954e09e3c2cb2bc6e36d"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context"]
-  revision = "5f8847ae0d0e90b6a9dc8148e7ad616874625171"
+  packages = ["context","idna"]
+  revision = "054b33e6527139ad5b1ec2f6232c3b175bd9a30c"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "c23410a886927bab8ca5e80b08af6a56faeb330d"
+  revision = "739734461d1c916b6c72a63d7efda2b27edb369f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
-  revision = "4e9ab9ee170f2a39bd66c92b3e0a47ff47a4bc77"
+  packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable","width"]
+  revision = "cfdf022e86b4ecfb646e1efbd7db175dd623a8fa"
+
+[[projects]]
+  name = "gopkg.in/go-playground/validator.v8"
+  packages = ["."]
+  revision = "5f57d2222ad794d0dffb07e664ea05e2ee07d60c"
+  version = "v8.18.1"
+
+[[projects]]
+  name = "gopkg.in/h2non/gock.v1"
+  packages = ["."]
+  revision = "2897ffde93a71060ce86518f1e7317ec8433d2d6"
+  version = "v1.0.4"
 
 [[projects]]
   name = "gopkg.in/nullbio/null.v6"
@@ -154,6 +334,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8478ad4bd8137e9636099050828f29ec9c364a6f31b39a5fcad144c4b202aea1"
+  inputs-digest = "15f63f3c891763328c2f0a24922366b7360b214aed2bf554dc2fa2ac1cef2e3c"
   solver-name = "gps-cdcl"
   solver-version = 1

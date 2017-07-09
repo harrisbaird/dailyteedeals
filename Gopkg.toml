@@ -22,6 +22,30 @@
 
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/AlasdairF/Titlecase"
+
+[[constraint]]
+  name = "github.com/PuerkitoBio/purell"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/caarlos0/env"
+  version = "3.0.0"
+
+[[constraint]]
+  name = "github.com/disintegration/imaging"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/gin-gonic/gin"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/gocraft/work"
+  version = "0.5.0"
+
+[[constraint]]
   name = "github.com/kat-co/vala"
   version = "1.0.0"
 
@@ -30,12 +54,32 @@
   name = "github.com/lib/pq"
 
 [[constraint]]
+  name = "github.com/minio/minio-go"
+  version = "3.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/nbio/st"
+
+[[constraint]]
   name = "github.com/pkg/errors"
   version = "0.8.0"
 
 [[constraint]]
   branch = "master"
+  name = "github.com/rainycape/unidecode"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/sethgrid/pester"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/spf13/viper"
+
+[[constraint]]
+  name = "gopkg.in/h2non/gock.v1"
+  version = "1.0.4"
 
 [[constraint]]
   name = "gopkg.in/nullbio/null.v6"
