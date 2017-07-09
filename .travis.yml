@@ -6,10 +6,17 @@ install:
   - cp sqlboiler.travis.toml sqlboiler.toml
   - go get github.com/golang/dep/cmd/dep
   - go get github.com/pressly/goose/cmd/goose
+  - go get github.com/onsi/ginkgo/ginkgo
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
   - dep ensure
   - psql -c 'create database dailyteedeals_test;' -U postgres -h localhost
   - goose -dir migrations postgres "user=postgres dbname=dailyteedeals_test sslmode=disable" up
-script: go test -cover $(go list ./... | grep -v /vendor/)
+script: 
+  - ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --progress
+after_success:
+  - gover
+  - goveralls -coverprofile=gover.coverprofile
 services:
   - postgresql
 addons:

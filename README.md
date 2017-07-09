@@ -1,1 +1,2 @@
 [![Build Status](https://travis-ci.org/harrisbaird/dailyteedeals.svg?branch=master)](https://travis-ci.org/harrisbaird/dailyteedeals)
+[![Coverage Status](https://coveralls.io/repos/github/harrisbaird/dailyteedeals/badge.svg?branch=master)](https://coveralls.io/github/harrisbaird/dailyteedeals?branch=master)
