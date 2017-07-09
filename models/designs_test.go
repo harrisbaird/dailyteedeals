@@ -463,6 +463,80 @@ func testDesignsInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testDesignToManyCategoryDesigns(t *testing.T) {
+	var err error
+	tx := MustTx(boil.Begin())
+	defer tx.Rollback()
+
+	var a Design
+	var b, c CategoryDesign
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, designDBTypes, true, designColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Design struct: %s", err)
+	}
+
+	if err := a.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	randomize.Struct(seed, &b, categoryDesignDBTypes, false, categoryDesignColumnsWithDefault...)
+	randomize.Struct(seed, &c, categoryDesignDBTypes, false, categoryDesignColumnsWithDefault...)
+
+	b.DesignID.Valid = true
+	c.DesignID.Valid = true
+	b.DesignID.Int = a.ID
+	c.DesignID.Int = a.ID
+	if err = b.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	categoryDesign, err := a.CategoryDesigns(tx).All()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range categoryDesign {
+		if v.DesignID.Int == b.DesignID.Int {
+			bFound = true
+		}
+		if v.DesignID.Int == c.DesignID.Int {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := DesignSlice{&a}
+	if err = a.L.LoadCategoryDesigns(tx, false, (*[]*Design)(&slice)); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.CategoryDesigns); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.CategoryDesigns = nil
+	if err = a.L.LoadCategoryDesigns(tx, true, &a); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.CategoryDesigns); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", categoryDesign)
+	}
+}
+
 func testDesignToManyProducts(t *testing.T) {
 	var err error
 	tx := MustTx(boil.Begin())
@@ -532,6 +606,254 @@ func testDesignToManyProducts(t *testing.T) {
 
 	if t.Failed() {
 		t.Logf("%#v", product)
+	}
+}
+
+func testDesignToManyAddOpCategoryDesigns(t *testing.T) {
+	var err error
+
+	tx := MustTx(boil.Begin())
+	defer tx.Rollback()
+
+	var a Design
+	var b, c, d, e CategoryDesign
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, designDBTypes, false, strmangle.SetComplement(designPrimaryKeyColumns, designColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*CategoryDesign{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, categoryDesignDBTypes, false, strmangle.SetComplement(categoryDesignPrimaryKeyColumns, categoryDesignColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*CategoryDesign{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddCategoryDesigns(tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if a.ID != first.DesignID.Int {
+			t.Error("foreign key was wrong value", a.ID, first.DesignID.Int)
+		}
+		if a.ID != second.DesignID.Int {
+			t.Error("foreign key was wrong value", a.ID, second.DesignID.Int)
+		}
+
+		if first.R.Design != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Design != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.CategoryDesigns[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.CategoryDesigns[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.CategoryDesigns(tx).Count()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
+
+func testDesignToManySetOpCategoryDesigns(t *testing.T) {
+	var err error
+
+	tx := MustTx(boil.Begin())
+	defer tx.Rollback()
+
+	var a Design
+	var b, c, d, e CategoryDesign
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, designDBTypes, false, strmangle.SetComplement(designPrimaryKeyColumns, designColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*CategoryDesign{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, categoryDesignDBTypes, false, strmangle.SetComplement(categoryDesignPrimaryKeyColumns, categoryDesignColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err = a.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	err = a.SetCategoryDesigns(tx, false, &b, &c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err := a.CategoryDesigns(tx).Count()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	err = a.SetCategoryDesigns(tx, true, &d, &e)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err = a.CategoryDesigns(tx).Count()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	if b.DesignID.Valid {
+		t.Error("want b's foreign key value to be nil")
+	}
+	if c.DesignID.Valid {
+		t.Error("want c's foreign key value to be nil")
+	}
+	if a.ID != d.DesignID.Int {
+		t.Error("foreign key was wrong value", a.ID, d.DesignID.Int)
+	}
+	if a.ID != e.DesignID.Int {
+		t.Error("foreign key was wrong value", a.ID, e.DesignID.Int)
+	}
+
+	if b.R.Design != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if c.R.Design != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if d.R.Design != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+	if e.R.Design != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+
+	if a.R.CategoryDesigns[0] != &d {
+		t.Error("relationship struct slice not set to correct value")
+	}
+	if a.R.CategoryDesigns[1] != &e {
+		t.Error("relationship struct slice not set to correct value")
+	}
+}
+
+func testDesignToManyRemoveOpCategoryDesigns(t *testing.T) {
+	var err error
+
+	tx := MustTx(boil.Begin())
+	defer tx.Rollback()
+
+	var a Design
+	var b, c, d, e CategoryDesign
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, designDBTypes, false, strmangle.SetComplement(designPrimaryKeyColumns, designColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*CategoryDesign{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, categoryDesignDBTypes, false, strmangle.SetComplement(categoryDesignPrimaryKeyColumns, categoryDesignColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	err = a.AddCategoryDesigns(tx, true, foreigners...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err := a.CategoryDesigns(tx).Count()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 4 {
+		t.Error("count was wrong:", count)
+	}
+
+	err = a.RemoveCategoryDesigns(tx, foreigners[:2]...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err = a.CategoryDesigns(tx).Count()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	if b.DesignID.Valid {
+		t.Error("want b's foreign key value to be nil")
+	}
+	if c.DesignID.Valid {
+		t.Error("want c's foreign key value to be nil")
+	}
+
+	if b.R.Design != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if c.R.Design != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if d.R.Design != &a {
+		t.Error("relationship to a should have been preserved")
+	}
+	if e.R.Design != &a {
+		t.Error("relationship to a should have been preserved")
+	}
+
+	if len(a.R.CategoryDesigns) != 2 {
+		t.Error("should have preserved two relationships")
+	}
+
+	// Removal doesn't do a stable deletion for performance so we have to flip the order
+	if a.R.CategoryDesigns[1] != &d {
+		t.Error("relationship to d should have been preserved")
+	}
+	if a.R.CategoryDesigns[0] != &e {
+		t.Error("relationship to e should have been preserved")
 	}
 }
 

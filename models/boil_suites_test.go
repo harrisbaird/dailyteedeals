@@ -14,8 +14,9 @@ import "testing"
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
 	t.Run("Artists", testArtists)
+	t.Run("Categories", testCategories)
+	t.Run("CategoryDesigns", testCategoryDesigns)
 	t.Run("Designs", testDesigns)
-	t.Run("GooseDBVersions", testGooseDBVersions)
 	t.Run("Products", testProducts)
 	t.Run("Sites", testSites)
 	t.Run("Users", testUsers)
@@ -23,8 +24,9 @@ func TestParent(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	t.Run("Artists", testArtistsDelete)
+	t.Run("Categories", testCategoriesDelete)
+	t.Run("CategoryDesigns", testCategoryDesignsDelete)
 	t.Run("Designs", testDesignsDelete)
-	t.Run("GooseDBVersions", testGooseDBVersionsDelete)
 	t.Run("Products", testProductsDelete)
 	t.Run("Sites", testSitesDelete)
 	t.Run("Users", testUsersDelete)
@@ -32,8 +34,9 @@ func TestDelete(t *testing.T) {
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Artists", testArtistsQueryDeleteAll)
+	t.Run("Categories", testCategoriesQueryDeleteAll)
+	t.Run("CategoryDesigns", testCategoryDesignsQueryDeleteAll)
 	t.Run("Designs", testDesignsQueryDeleteAll)
-	t.Run("GooseDBVersions", testGooseDBVersionsQueryDeleteAll)
 	t.Run("Products", testProductsQueryDeleteAll)
 	t.Run("Sites", testSitesQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
@@ -41,8 +44,9 @@ func TestQueryDeleteAll(t *testing.T) {
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Artists", testArtistsSliceDeleteAll)
+	t.Run("Categories", testCategoriesSliceDeleteAll)
+	t.Run("CategoryDesigns", testCategoryDesignsSliceDeleteAll)
 	t.Run("Designs", testDesignsSliceDeleteAll)
-	t.Run("GooseDBVersions", testGooseDBVersionsSliceDeleteAll)
 	t.Run("Products", testProductsSliceDeleteAll)
 	t.Run("Sites", testSitesSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
@@ -50,8 +54,9 @@ func TestSliceDeleteAll(t *testing.T) {
 
 func TestExists(t *testing.T) {
 	t.Run("Artists", testArtistsExists)
+	t.Run("Categories", testCategoriesExists)
+	t.Run("CategoryDesigns", testCategoryDesignsExists)
 	t.Run("Designs", testDesignsExists)
-	t.Run("GooseDBVersions", testGooseDBVersionsExists)
 	t.Run("Products", testProductsExists)
 	t.Run("Sites", testSitesExists)
 	t.Run("Users", testUsersExists)
@@ -59,8 +64,9 @@ func TestExists(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	t.Run("Artists", testArtistsFind)
+	t.Run("Categories", testCategoriesFind)
+	t.Run("CategoryDesigns", testCategoryDesignsFind)
 	t.Run("Designs", testDesignsFind)
-	t.Run("GooseDBVersions", testGooseDBVersionsFind)
 	t.Run("Products", testProductsFind)
 	t.Run("Sites", testSitesFind)
 	t.Run("Users", testUsersFind)
@@ -68,8 +74,9 @@ func TestFind(t *testing.T) {
 
 func TestBind(t *testing.T) {
 	t.Run("Artists", testArtistsBind)
+	t.Run("Categories", testCategoriesBind)
+	t.Run("CategoryDesigns", testCategoryDesignsBind)
 	t.Run("Designs", testDesignsBind)
-	t.Run("GooseDBVersions", testGooseDBVersionsBind)
 	t.Run("Products", testProductsBind)
 	t.Run("Sites", testSitesBind)
 	t.Run("Users", testUsersBind)
@@ -77,8 +84,9 @@ func TestBind(t *testing.T) {
 
 func TestOne(t *testing.T) {
 	t.Run("Artists", testArtistsOne)
+	t.Run("Categories", testCategoriesOne)
+	t.Run("CategoryDesigns", testCategoryDesignsOne)
 	t.Run("Designs", testDesignsOne)
-	t.Run("GooseDBVersions", testGooseDBVersionsOne)
 	t.Run("Products", testProductsOne)
 	t.Run("Sites", testSitesOne)
 	t.Run("Users", testUsersOne)
@@ -86,8 +94,9 @@ func TestOne(t *testing.T) {
 
 func TestAll(t *testing.T) {
 	t.Run("Artists", testArtistsAll)
+	t.Run("Categories", testCategoriesAll)
+	t.Run("CategoryDesigns", testCategoryDesignsAll)
 	t.Run("Designs", testDesignsAll)
-	t.Run("GooseDBVersions", testGooseDBVersionsAll)
 	t.Run("Products", testProductsAll)
 	t.Run("Sites", testSitesAll)
 	t.Run("Users", testUsersAll)
@@ -95,8 +104,9 @@ func TestAll(t *testing.T) {
 
 func TestCount(t *testing.T) {
 	t.Run("Artists", testArtistsCount)
+	t.Run("Categories", testCategoriesCount)
+	t.Run("CategoryDesigns", testCategoryDesignsCount)
 	t.Run("Designs", testDesignsCount)
-	t.Run("GooseDBVersions", testGooseDBVersionsCount)
 	t.Run("Products", testProductsCount)
 	t.Run("Sites", testSitesCount)
 	t.Run("Users", testUsersCount)
@@ -104,8 +114,9 @@ func TestCount(t *testing.T) {
 
 func TestHooks(t *testing.T) {
 	t.Run("Artists", testArtistsHooks)
+	t.Run("Categories", testCategoriesHooks)
+	t.Run("CategoryDesigns", testCategoryDesignsHooks)
 	t.Run("Designs", testDesignsHooks)
-	t.Run("GooseDBVersions", testGooseDBVersionsHooks)
 	t.Run("Products", testProductsHooks)
 	t.Run("Sites", testSitesHooks)
 	t.Run("Users", testUsersHooks)
@@ -114,10 +125,12 @@ func TestHooks(t *testing.T) {
 func TestInsert(t *testing.T) {
 	t.Run("Artists", testArtistsInsert)
 	t.Run("Artists", testArtistsInsertWhitelist)
+	t.Run("Categories", testCategoriesInsert)
+	t.Run("Categories", testCategoriesInsertWhitelist)
+	t.Run("CategoryDesigns", testCategoryDesignsInsert)
+	t.Run("CategoryDesigns", testCategoryDesignsInsertWhitelist)
 	t.Run("Designs", testDesignsInsert)
 	t.Run("Designs", testDesignsInsertWhitelist)
-	t.Run("GooseDBVersions", testGooseDBVersionsInsert)
-	t.Run("GooseDBVersions", testGooseDBVersionsInsertWhitelist)
 	t.Run("Products", testProductsInsert)
 	t.Run("Products", testProductsInsertWhitelist)
 	t.Run("Sites", testSitesInsert)
@@ -129,6 +142,8 @@ func TestInsert(t *testing.T) {
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
+	t.Run("CategoryDesignToCategoryUsingCategory", testCategoryDesignToOneCategoryUsingCategory)
+	t.Run("CategoryDesignToDesignUsingDesign", testCategoryDesignToOneDesignUsingDesign)
 	t.Run("DesignToArtistUsingArtist", testDesignToOneArtistUsingArtist)
 	t.Run("ProductToDesignUsingDesign", testProductToOneDesignUsingDesign)
 	t.Run("ProductToSiteUsingSite", testProductToOneSiteUsingSite)
@@ -142,6 +157,8 @@ func TestOneToOne(t *testing.T) {}
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
 	t.Run("ArtistToDesigns", testArtistToManyDesigns)
+	t.Run("CategoryToCategoryDesigns", testCategoryToManyCategoryDesigns)
+	t.Run("DesignToCategoryDesigns", testDesignToManyCategoryDesigns)
 	t.Run("DesignToProducts", testDesignToManyProducts)
 	t.Run("SiteToProducts", testSiteToManyProducts)
 }
@@ -149,6 +166,8 @@ func TestToMany(t *testing.T) {
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
+	t.Run("CategoryDesignToCategoryUsingCategory", testCategoryDesignToOneSetOpCategoryUsingCategory)
+	t.Run("CategoryDesignToDesignUsingDesign", testCategoryDesignToOneSetOpDesignUsingDesign)
 	t.Run("DesignToArtistUsingArtist", testDesignToOneSetOpArtistUsingArtist)
 	t.Run("ProductToDesignUsingDesign", testProductToOneSetOpDesignUsingDesign)
 	t.Run("ProductToSiteUsingSite", testProductToOneSetOpSiteUsingSite)
@@ -156,7 +175,10 @@ func TestToOneSet(t *testing.T) {
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneRemove(t *testing.T) {}
+func TestToOneRemove(t *testing.T) {
+	t.Run("CategoryDesignToCategoryUsingCategory", testCategoryDesignToOneRemoveOpCategoryUsingCategory)
+	t.Run("CategoryDesignToDesignUsingDesign", testCategoryDesignToOneRemoveOpDesignUsingDesign)
+}
 
 // TestOneToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
@@ -170,22 +192,31 @@ func TestOneToOneRemove(t *testing.T) {}
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
 	t.Run("ArtistToDesigns", testArtistToManyAddOpDesigns)
+	t.Run("CategoryToCategoryDesigns", testCategoryToManyAddOpCategoryDesigns)
+	t.Run("DesignToCategoryDesigns", testDesignToManyAddOpCategoryDesigns)
 	t.Run("DesignToProducts", testDesignToManyAddOpProducts)
 	t.Run("SiteToProducts", testSiteToManyAddOpProducts)
 }
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManySet(t *testing.T) {}
+func TestToManySet(t *testing.T) {
+	t.Run("CategoryToCategoryDesigns", testCategoryToManySetOpCategoryDesigns)
+	t.Run("DesignToCategoryDesigns", testDesignToManySetOpCategoryDesigns)
+}
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManyRemove(t *testing.T) {}
+func TestToManyRemove(t *testing.T) {
+	t.Run("CategoryToCategoryDesigns", testCategoryToManyRemoveOpCategoryDesigns)
+	t.Run("DesignToCategoryDesigns", testDesignToManyRemoveOpCategoryDesigns)
+}
 
 func TestReload(t *testing.T) {
 	t.Run("Artists", testArtistsReload)
+	t.Run("Categories", testCategoriesReload)
+	t.Run("CategoryDesigns", testCategoryDesignsReload)
 	t.Run("Designs", testDesignsReload)
-	t.Run("GooseDBVersions", testGooseDBVersionsReload)
 	t.Run("Products", testProductsReload)
 	t.Run("Sites", testSitesReload)
 	t.Run("Users", testUsersReload)
@@ -193,8 +224,9 @@ func TestReload(t *testing.T) {
 
 func TestReloadAll(t *testing.T) {
 	t.Run("Artists", testArtistsReloadAll)
+	t.Run("Categories", testCategoriesReloadAll)
+	t.Run("CategoryDesigns", testCategoryDesignsReloadAll)
 	t.Run("Designs", testDesignsReloadAll)
-	t.Run("GooseDBVersions", testGooseDBVersionsReloadAll)
 	t.Run("Products", testProductsReloadAll)
 	t.Run("Sites", testSitesReloadAll)
 	t.Run("Users", testUsersReloadAll)
@@ -202,8 +234,9 @@ func TestReloadAll(t *testing.T) {
 
 func TestSelect(t *testing.T) {
 	t.Run("Artists", testArtistsSelect)
+	t.Run("Categories", testCategoriesSelect)
+	t.Run("CategoryDesigns", testCategoryDesignsSelect)
 	t.Run("Designs", testDesignsSelect)
-	t.Run("GooseDBVersions", testGooseDBVersionsSelect)
 	t.Run("Products", testProductsSelect)
 	t.Run("Sites", testSitesSelect)
 	t.Run("Users", testUsersSelect)
@@ -211,8 +244,9 @@ func TestSelect(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	t.Run("Artists", testArtistsUpdate)
+	t.Run("Categories", testCategoriesUpdate)
+	t.Run("CategoryDesigns", testCategoryDesignsUpdate)
 	t.Run("Designs", testDesignsUpdate)
-	t.Run("GooseDBVersions", testGooseDBVersionsUpdate)
 	t.Run("Products", testProductsUpdate)
 	t.Run("Sites", testSitesUpdate)
 	t.Run("Users", testUsersUpdate)
@@ -220,8 +254,9 @@ func TestUpdate(t *testing.T) {
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Artists", testArtistsSliceUpdateAll)
+	t.Run("Categories", testCategoriesSliceUpdateAll)
+	t.Run("CategoryDesigns", testCategoryDesignsSliceUpdateAll)
 	t.Run("Designs", testDesignsSliceUpdateAll)
-	t.Run("GooseDBVersions", testGooseDBVersionsSliceUpdateAll)
 	t.Run("Products", testProductsSliceUpdateAll)
 	t.Run("Sites", testSitesSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
@@ -229,8 +264,9 @@ func TestSliceUpdateAll(t *testing.T) {
 
 func TestUpsert(t *testing.T) {
 	t.Run("Artists", testArtistsUpsert)
+	t.Run("Categories", testCategoriesUpsert)
+	t.Run("CategoryDesigns", testCategoryDesignsUpsert)
 	t.Run("Designs", testDesignsUpsert)
-	t.Run("GooseDBVersions", testGooseDBVersionsUpsert)
 	t.Run("Products", testProductsUpsert)
 	t.Run("Sites", testSitesUpsert)
 	t.Run("Users", testUsersUpsert)

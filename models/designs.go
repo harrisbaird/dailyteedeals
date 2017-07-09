@@ -38,8 +38,9 @@ type Design struct {
 
 // designR is where relationships are stored.
 type designR struct {
-	Artist   *Artist
-	Products ProductSlice
+	Artist          *Artist
+	CategoryDesigns CategoryDesignSlice
+	Products        ProductSlice
 }
 
 // designL is where Load methods for each relationship are stored.
@@ -347,6 +348,32 @@ func (o *Design) Artist(exec boil.Executor, mods ...qm.QueryMod) artistQuery {
 	return query
 }
 
+// CategoryDesignsG retrieves all the category_design's category designs.
+func (o *Design) CategoryDesignsG(mods ...qm.QueryMod) categoryDesignQuery {
+	return o.CategoryDesigns(boil.GetDB(), mods...)
+}
+
+// CategoryDesigns retrieves all the category_design's category designs with an executor.
+func (o *Design) CategoryDesigns(exec boil.Executor, mods ...qm.QueryMod) categoryDesignQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"category_designs\".\"design_id\"=?", o.ID),
+	)
+
+	query := CategoryDesigns(exec, queryMods...)
+	queries.SetFrom(query.Query, "\"category_designs\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"category_designs\".*"})
+	}
+
+	return query
+}
+
 // ProductsG retrieves all the product's products.
 func (o *Design) ProductsG(mods ...qm.QueryMod) productQuery {
 	return o.Products(boil.GetDB(), mods...)
@@ -443,6 +470,78 @@ func (designL) LoadArtist(e boil.Executor, singular bool, maybeDesign interface{
 		for _, foreign := range resultSlice {
 			if local.ArtistID == foreign.ID {
 				local.R.Artist = foreign
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadCategoryDesigns allows an eager lookup of values, cached into the
+// loaded structs of the objects.
+func (designL) LoadCategoryDesigns(e boil.Executor, singular bool, maybeDesign interface{}) error {
+	var slice []*Design
+	var object *Design
+
+	count := 1
+	if singular {
+		object = maybeDesign.(*Design)
+	} else {
+		slice = *maybeDesign.(*[]*Design)
+		count = len(slice)
+	}
+
+	args := make([]interface{}, count)
+	if singular {
+		if object.R == nil {
+			object.R = &designR{}
+		}
+		args[0] = object.ID
+	} else {
+		for i, obj := range slice {
+			if obj.R == nil {
+				obj.R = &designR{}
+			}
+			args[i] = obj.ID
+		}
+	}
+
+	query := fmt.Sprintf(
+		"select * from \"category_designs\" where \"design_id\" in (%s)",
+		strmangle.Placeholders(dialect.IndexPlaceholders, count, 1, 1),
+	)
+	if boil.DebugMode {
+		fmt.Fprintf(boil.DebugWriter, "%s\n%v\n", query, args)
+	}
+
+	results, err := e.Query(query, args...)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load category_designs")
+	}
+	defer results.Close()
+
+	var resultSlice []*CategoryDesign
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice category_designs")
+	}
+
+	if len(categoryDesignAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.CategoryDesigns = resultSlice
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.DesignID.Int {
+				local.R.CategoryDesigns = append(local.R.CategoryDesigns, foreign)
 				break
 			}
 		}
@@ -594,6 +693,227 @@ func (o *Design) SetArtist(exec boil.Executor, insert bool, related *Artist) err
 		}
 	} else {
 		related.R.Designs = append(related.R.Designs, o)
+	}
+
+	return nil
+}
+
+// AddCategoryDesignsG adds the given related objects to the existing relationships
+// of the design, optionally inserting them as new records.
+// Appends related to o.R.CategoryDesigns.
+// Sets related.R.Design appropriately.
+// Uses the global database handle.
+func (o *Design) AddCategoryDesignsG(insert bool, related ...*CategoryDesign) error {
+	return o.AddCategoryDesigns(boil.GetDB(), insert, related...)
+}
+
+// AddCategoryDesignsP adds the given related objects to the existing relationships
+// of the design, optionally inserting them as new records.
+// Appends related to o.R.CategoryDesigns.
+// Sets related.R.Design appropriately.
+// Panics on error.
+func (o *Design) AddCategoryDesignsP(exec boil.Executor, insert bool, related ...*CategoryDesign) {
+	if err := o.AddCategoryDesigns(exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddCategoryDesignsGP adds the given related objects to the existing relationships
+// of the design, optionally inserting them as new records.
+// Appends related to o.R.CategoryDesigns.
+// Sets related.R.Design appropriately.
+// Uses the global database handle and panics on error.
+func (o *Design) AddCategoryDesignsGP(insert bool, related ...*CategoryDesign) {
+	if err := o.AddCategoryDesigns(boil.GetDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddCategoryDesigns adds the given related objects to the existing relationships
+// of the design, optionally inserting them as new records.
+// Appends related to o.R.CategoryDesigns.
+// Sets related.R.Design appropriately.
+func (o *Design) AddCategoryDesigns(exec boil.Executor, insert bool, related ...*CategoryDesign) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.DesignID.Int = o.ID
+			rel.DesignID.Valid = true
+			if err = rel.Insert(exec); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"category_designs\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"design_id"}),
+				strmangle.WhereClause("\"", "\"", 2, categoryDesignPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.DebugMode {
+				fmt.Fprintln(boil.DebugWriter, updateQuery)
+				fmt.Fprintln(boil.DebugWriter, values)
+			}
+
+			if _, err = exec.Exec(updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.DesignID.Int = o.ID
+			rel.DesignID.Valid = true
+		}
+	}
+
+	if o.R == nil {
+		o.R = &designR{
+			CategoryDesigns: related,
+		}
+	} else {
+		o.R.CategoryDesigns = append(o.R.CategoryDesigns, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &categoryDesignR{
+				Design: o,
+			}
+		} else {
+			rel.R.Design = o
+		}
+	}
+	return nil
+}
+
+// SetCategoryDesignsG removes all previously related items of the
+// design replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Design's CategoryDesigns accordingly.
+// Replaces o.R.CategoryDesigns with related.
+// Sets related.R.Design's CategoryDesigns accordingly.
+// Uses the global database handle.
+func (o *Design) SetCategoryDesignsG(insert bool, related ...*CategoryDesign) error {
+	return o.SetCategoryDesigns(boil.GetDB(), insert, related...)
+}
+
+// SetCategoryDesignsP removes all previously related items of the
+// design replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Design's CategoryDesigns accordingly.
+// Replaces o.R.CategoryDesigns with related.
+// Sets related.R.Design's CategoryDesigns accordingly.
+// Panics on error.
+func (o *Design) SetCategoryDesignsP(exec boil.Executor, insert bool, related ...*CategoryDesign) {
+	if err := o.SetCategoryDesigns(exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetCategoryDesignsGP removes all previously related items of the
+// design replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Design's CategoryDesigns accordingly.
+// Replaces o.R.CategoryDesigns with related.
+// Sets related.R.Design's CategoryDesigns accordingly.
+// Uses the global database handle and panics on error.
+func (o *Design) SetCategoryDesignsGP(insert bool, related ...*CategoryDesign) {
+	if err := o.SetCategoryDesigns(boil.GetDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetCategoryDesigns removes all previously related items of the
+// design replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Design's CategoryDesigns accordingly.
+// Replaces o.R.CategoryDesigns with related.
+// Sets related.R.Design's CategoryDesigns accordingly.
+func (o *Design) SetCategoryDesigns(exec boil.Executor, insert bool, related ...*CategoryDesign) error {
+	query := "update \"category_designs\" set \"design_id\" = null where \"design_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+
+	_, err := exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.CategoryDesigns {
+			rel.DesignID.Valid = false
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.Design = nil
+		}
+
+		o.R.CategoryDesigns = nil
+	}
+	return o.AddCategoryDesigns(exec, insert, related...)
+}
+
+// RemoveCategoryDesignsG relationships from objects passed in.
+// Removes related items from R.CategoryDesigns (uses pointer comparison, removal does not keep order)
+// Sets related.R.Design.
+// Uses the global database handle.
+func (o *Design) RemoveCategoryDesignsG(related ...*CategoryDesign) error {
+	return o.RemoveCategoryDesigns(boil.GetDB(), related...)
+}
+
+// RemoveCategoryDesignsP relationships from objects passed in.
+// Removes related items from R.CategoryDesigns (uses pointer comparison, removal does not keep order)
+// Sets related.R.Design.
+// Panics on error.
+func (o *Design) RemoveCategoryDesignsP(exec boil.Executor, related ...*CategoryDesign) {
+	if err := o.RemoveCategoryDesigns(exec, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveCategoryDesignsGP relationships from objects passed in.
+// Removes related items from R.CategoryDesigns (uses pointer comparison, removal does not keep order)
+// Sets related.R.Design.
+// Uses the global database handle and panics on error.
+func (o *Design) RemoveCategoryDesignsGP(related ...*CategoryDesign) {
+	if err := o.RemoveCategoryDesigns(boil.GetDB(), related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// RemoveCategoryDesigns relationships from objects passed in.
+// Removes related items from R.CategoryDesigns (uses pointer comparison, removal does not keep order)
+// Sets related.R.Design.
+func (o *Design) RemoveCategoryDesigns(exec boil.Executor, related ...*CategoryDesign) error {
+	var err error
+	for _, rel := range related {
+		rel.DesignID.Valid = false
+		if rel.R != nil {
+			rel.R.Design = nil
+		}
+		if err = rel.Update(exec, "design_id"); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.CategoryDesigns {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.CategoryDesigns)
+			if ln > 1 && i < ln-1 {
+				o.R.CategoryDesigns[i] = o.R.CategoryDesigns[ln-1]
+			}
+			o.R.CategoryDesigns = o.R.CategoryDesigns[:ln-1]
+			break
+		}
 	}
 
 	return nil
