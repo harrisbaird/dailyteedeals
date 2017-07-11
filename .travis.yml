@@ -6,16 +6,12 @@ env:
   - POSTGRES_DATABASE=dailyteedeals_test
 install: 
   - cp sqlboiler.travis.toml sqlboiler.toml
-  - go get github.com/golang/dep/cmd/dep
-  - go get github.com/pressly/goose/cmd/goose
-  - go get github.com/onsi/ginkgo/ginkgo
+  - psql -c 'create database dailyteedeals_test;' -U postgres -h localhost
   - go get github.com/modocache/gover
   - go get github.com/mattn/goveralls
-  - dep ensure
-  - psql -c 'create database dailyteedeals_test;' -U postgres -h localhost
-  - go run migrations/*.go
-script: 
-  - ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --progress
+  - make
+script:
+  - make test
 after_success:
   - gover
   - goveralls -coverprofile=gover.coverprofile

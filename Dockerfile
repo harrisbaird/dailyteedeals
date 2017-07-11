@@ -1,17 +1,11 @@
 # Build binary
 FROM golang:alpine AS build-env
 LABEL maintainer "daniel@harrisbaird.co.uk"
-
-RUN apk --update --no-cache add git ca-certificates
-
-# install dependency tool
-RUN go get github.com/golang/dep && go install github.com/golang/dep/cmd/dep
-
+RUN apk --update --no-cache add git ca-certificates make
 WORKDIR /go/src/github.com/harrisbaird/dailyteedeals
 ADD . .
-RUN dep ensure
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /bin/dailyteedeals && \
-    CGO_ENABLED=0 go build -ldflags="-s -w" -o migrate migrations/*.go
+RUN make install_dependencies && \
+    BUILD_LOCATION="/bin" make build
 
 # Small runtime image
 FROM alpine

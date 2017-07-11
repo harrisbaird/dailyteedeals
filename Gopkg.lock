@@ -212,6 +212,12 @@
   version = "v0.8.0"
 
 [[projects]]
+  name = "github.com/pressly/goose"
+  packages = ["."]
+  revision = "056a4d47dcc4d67fa3947a4f13945a5c690e568b"
+  version = "v2.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/rainycape/unidecode"
   packages = ["."]
@@ -334,6 +340,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "15f63f3c891763328c2f0a24922366b7360b214aed2bf554dc2fa2ac1cef2e3c"
+  inputs-digest = "8b55ffa73afe78f5832d8c36ed92697d15ea9962f0958132d90d57591fe583d9"
   solver-name = "gps-cdcl"
   solver-version = 1
