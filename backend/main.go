@@ -2,20 +2,15 @@ package backend
 
 import (
 	"bufio"
-	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/garyburd/redigo/redis"
+	"github.com/go-pg/pg"
 	"github.com/gocraft/work"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/harrisbaird/dailyteedeals/models"
-	"github.com/harrisbaird/dailyteedeals/modext"
-	"github.com/vattle/sqlboiler/boil"
-	"github.com/vattle/sqlboiler/types"
+	"github.com/harrisbaird/dailyteedeals/utils"
 )
 
 const (
@@ -25,19 +20,20 @@ const (
 
 var (
 	noRetryOptions = work.JobOptions{MaxFails: 1}
+	minioConn      = utils.NewMinioConnection()
 	enqueuer       *work.Enqueuer
 	pool           *work.WorkerPool
 )
 
 type JobContext struct {
-	DB      boil.Executor
-	SiteID  int
-	JobType modext.SiteJobType
+	DB         *pg.DB
+	SpiderJob  *models.SpiderJob
+	SpiderItem *models.SpiderItem
 }
 
-func Start(db boil.Executor) {
+func Start(db *pg.DB) {
 	log.Println("Starting backend")
-	redisPool := &redis.Pool{Dial: func() (redis.Conn, error) { return redis.Dial("tcp", config.RedisConnectionString()) }}
+	redisPool := &redis.Pool{Dial: func() (redis.Conn, error) { return redis.Dial("tcp", config.App.RedisAddr) }}
 	pool = work.NewWorkerPool(JobContext{DB: db}, 10, jobNamespace, redisPool)
 	enqueuer = work.NewEnqueuer(jobNamespace, redisPool)
 
@@ -46,11 +42,14 @@ func Start(db boil.Executor) {
 		return next()
 	})
 	pool.Middleware((*JobContext).Log)
+	pool.Middleware((*JobContext).FindSpiderJob)
 
 	// Setup job scheduling
 	if config.IsProduction() {
-		pool.PeriodicallyEnqueue("0 40 * * * *", "schedule_deal")
+		log.Println("Creating periodic backend jobs")
+		pool.PeriodicallyEnqueue("0 0 * * * *", "schedule_deal")
 		pool.PeriodicallyEnqueue("0 0 0 * * 1", "schedule_full")
+		pool.PeriodicallyEnqueue("0 0 0 * * *", "update_exchange_rates")
 	}
 
 	pool.JobWithOptions("schedule_deal", noRetryOptions, (*JobContext).ScheduleDeal)
@@ -58,6 +57,7 @@ func Start(db boil.Executor) {
 	pool.JobWithOptions("wait_for_scraper", noRetryOptions, (*JobContext).WaitForScraper)
 	pool.JobWithOptions("parse_feed", noRetryOptions, (*JobContext).ParseFeed)
 	pool.JobWithOptions("parse_item", noRetryOptions, (*JobContext).ParseItem)
+	pool.JobWithOptions("update_exchange_rates", noRetryOptions, (*JobContext).UpdateExchangeRates)
 	pool.Start()
 }
 
@@ -77,24 +77,39 @@ func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
 	return err
 }
 
+func (c *JobContext) FindSpiderJob(job *work.Job, next work.NextMiddlewareFunc) error {
+	if _, ok := job.Args["spider_job_id"]; ok {
+		if err := c.DB.Model(&c.SpiderJob).Where("id=?", job.ArgInt64("spider_job_id")).First(); err != nil {
+			return err
+		}
+	}
+
+	if _, ok := job.Args["spider_item_id"]; ok {
+		if err := c.DB.Model(&c.SpiderItem).Where("id=?", job.ArgInt64("spider_item_id")).First(); err != nil {
+			return err
+		}
+	}
+
+	return next()
+}
+
 // ScheduleDeal schedules jobs for active sites which have
 // deal_scraper enabled.
 func (c *JobContext) ScheduleDeal(job *work.Job) error {
-	return c.scheduleJobs(modext.SiteDealJobType)
+	return c.scheduleJobs(models.SiteDealJobType)
 }
 
 // ScheduleFull schedules jobs for active sites which have
 // full_scraper enabled.
 func (c *JobContext) ScheduleFull(job *work.Job) error {
-	return c.scheduleJobs(modext.SiteFullJobType)
+	return c.scheduleJobs(models.SiteFullJobType)
 }
 
 // WaitForScraper waits until scrapyd reports that the job is finished
 // and schedules a 'parse_feed' job, otherwise reschedules a 'wait_for_scraper
 // job in 5 seconds.
 func (c *JobContext) WaitForScraper(job *work.Job) error {
-	scrapydJobID := job.ArgString("scrapyd_job_id")
-	finished, err := ScrapydIsFinished(scrapydJobID)
+	finished, err := ScrapydIsFinished(c.SpiderJob.ScrapydJobID)
 	if err != nil {
 		return err
 	}
@@ -113,79 +128,49 @@ func (c *JobContext) WaitForScraper(job *work.Job) error {
 // ParseFeed parses downloads and parses the item feed
 // and creates a 'parse_item' job for each item.
 func (c *JobContext) ParseFeed(job *work.Job) error {
-	scrapydJobID := job.ArgString("scrapyd_job_id")
-	siteID := job.ArgInt64("site_id")
-	deal := job.ArgBool("deal")
-
-	if err := modext.MarkProductsInactive(c.DB, int(siteID), deal); err != nil {
+	if err := models.MarkProductsInactive(c.DB, c.SpiderJob.SiteID, c.SpiderJob.JobType == models.SiteDealJobType.String()); err != nil {
 		return err
 	}
 
-	feed, err := ScrapydDownloadFeed(scrapydJobID)
+	feed, err := ScrapydDownloadFeed(c.SpiderJob.ScrapydJobID)
 	if err != nil {
 		return err
 	}
 
 	scanner := bufio.NewScanner(feed)
 	for scanner.Scan() {
-		enqueuer.Enqueue("parse_item", work.Q{"site_id": siteID, "data": scanner.Text()})
+		spiderItem, err := models.CreateSpiderItem(c.DB, int(c.SpiderJob.ID), scanner.Text())
+		if err != nil {
+			fmt.Println("CreateSpiderItem: " + err.Error())
+		}
+
+		enqueuer.Enqueue("parse_item", work.Q{"spider_item_id": spiderItem.ID})
 	}
 
 	return scanner.Err()
 }
 
-// ParseItem parses a single item, creating the required database rows
-// and creating
+// ParseItem parses the item data, creating the required database rows.
 func (c *JobContext) ParseItem(job *work.Job) error {
-	siteID := job.ArgInt64("site_id")
-	itemData := job.ArgString("data")
-
-	data := ScrapydItem{}
-
-	if err := json.Unmarshal([]byte(itemData), &data); err != nil {
+	err := c.DB.RunInTransaction(func(tx *pg.Tx) error {
+		err := c.SpiderItem.ParseItemData(tx, minioConn)
+		if err != nil {
+			c.SpiderItem.Error = err.Error()
+			tx.Update(&c.SpiderItem)
+		}
 		return err
-	}
-
-	artist, err := modext.FindOrCreateArtist(c.DB, data.ArtistName, data.ArtistUrls)
-	if err != nil {
-		return err
-	}
-
-	design, err := modext.FindOrCreateDesign(c.DB, artist.ID, data.Name)
-	if err != nil {
-		return err
-	}
-
-	// convert prices to sqlboiler hstore format
-	prices := make(types.HStore)
-	for currency, price := range data.Prices {
-		prices[strings.ToUpper(currency)] = sql.NullString{String: fmt.Sprintf("%d", price)}
-	}
-
-	product := models.Product{
-		DesignID:   design.ID,
-		SiteID:     int(siteID),
-		URL:        data.URL,
-		Prices:     prices,
-		Active:     data.Active,
-		Deal:       data.Deal,
-		LastChance: data.LastChance,
-		Tags:       data.Tags,
-	}
-
-	err = product.Upsert(c.DB, true, []string{"design_id", "site_id"},
-		[]string{"url", "prices", "active", "deal", "last_chance"})
-	if err != nil {
-		return err
-	}
-
-	spew.Dump(err)
-
-	return modext.UpdateImageIfExpired(c.DB, &product, data.ImageURL)
+	})
+	return err
 }
 
-func (c *JobContext) scheduleJobs(jobType modext.SiteJobType) error {
-	sites, err := modext.ActiveSitesWithJobType(c.DB, jobType)
+func (c *JobContext) UpdateExchangeRates(job *work.Job) error {
+	return utils.UpdateRates()
+}
+
+func (c *JobContext) scheduleJobs(jobType models.SiteJobType) error {
+	log.Printf("Starting jobs for %s sites\n", jobType.String())
+
+	sites, err := models.ActiveSitesWithJobType(c.DB, jobType)
 	if err != nil {
 		return err
 	}
@@ -193,13 +178,18 @@ func (c *JobContext) scheduleJobs(jobType modext.SiteJobType) error {
 	for _, site := range sites {
 		scrapydJobID, err := ScrapydSchedule(site.Slug + "_" + jobType.String())
 		if err != nil {
-			log.Printf("Site %d returned error %s", site.ID, err.Error())
+			log.Println("ScrapydSchedule: " + err.Error())
+			continue
 		}
-		_, err = enqueuer.EnqueueIn("wait_for_scraper", recheckRateSeconds, work.Q{
-			"site_id":        site.ID,
-			"scrapyd_job_id": scrapydJobID,
-			"deal":           jobType == modext.SiteDealJobType,
-		})
+
+		spiderJob, err := models.CreateSpiderJob(c.DB, site.ID, scrapydJobID, jobType.String())
+		if err != nil {
+			log.Println("CreateSpiderJob: " + err.Error())
+			continue
+		}
+
+		_, err = enqueuer.EnqueueIn("wait_for_scraper", recheckRateSeconds,
+			work.Q{"spider_job_id": spiderJob.ID})
 		if err != nil {
 			log.Println(err)
 		}

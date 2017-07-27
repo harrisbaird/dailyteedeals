@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/harrisbaird/dailyteedeals/modext"
-	"github.com/vattle/sqlboiler/boil"
+	"github.com/go-pg/pg/orm"
+	"github.com/harrisbaird/dailyteedeals/models"
 )
 
-func ProductsEndpoint(db boil.Executor) gin.HandlerFunc {
+func ProductsEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		products, productsErr := modext.ActiveDeals(db)
+		products, productsErr := models.ActiveDeals(db)
 		if productsErr != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "deals not found"})
 			return

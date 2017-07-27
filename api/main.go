@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/config"
-	"github.com/vattle/sqlboiler/boil"
 )
 
 var server *http.Server
 
-func Start(db boil.Executor) {
+func Start(db orm.DB) {
 	log.Println("Starting http server on: " + config.App.HTTPListenAddr)
 
 	hs := make(hostSwitch)

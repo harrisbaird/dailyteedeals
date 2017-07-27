@@ -5,9 +5,8 @@ import (
 	"math"
 	"strings"
 
-	"github.com/harrisbaird/dailyteedeals/api/v2"
 	"github.com/harrisbaird/dailyteedeals/models"
-	"github.com/harrisbaird/dailyteedeals/modext"
+	"github.com/harrisbaird/dailyteedeals/utils"
 )
 
 type v1Site struct {
@@ -41,19 +40,19 @@ type v1Product struct {
 	Site         *v1Site   `json:"site"`
 }
 
-func buildV1Api(products models.ProductSlice) []v1Product {
+func buildV1Api(products []*models.Product) []v1Product {
 	var out []v1Product
 
 	for _, product := range products {
 		out = append(out, v1Product{
 			ID:           product.ID,
-			BuyURL:       modext.ProductBuyURL(product),
+			BuyURL:       product.GoURL(),
 			DisplayPrice: buildV1Price(product),
 			LastChance:   product.LastChance,
-			Design:       buildV1Design(product.R.Design),
-			Site:         buildV1Site(product.R.Site),
+			Design:       buildV1Design(product.Design),
+			Site:         buildV1Site(product.Site),
 			Image: &v1Image{
-				URL:             modext.ProductImageURL(product, 300),
+				URL:             product.ImageURL(models.SmallImageType),
 				BackgroundColor: product.ImageBackground,
 			},
 		})
@@ -65,12 +64,12 @@ func buildV1Api(products models.ProductSlice) []v1Product {
 var v1Currencies = []string{"USD", "GBP", "EUR"}
 
 func buildV1Price(product *models.Product) string {
-	prices := v2.ConvertPrices(product.Prices)
+	prices := utils.ConvertPrices(product.Prices)
 
 	output := []string{}
 	for _, currency := range v1Currencies {
 		price := prices[currency]
-		symbol := v2.CurrencySymbols[price.Currency]
+		symbol := utils.CurrentRates[currency].Symbol
 		amount := math.Ceil(float64(price.Amount) / 100)
 		output = append(output, fmt.Sprintf("%s%.2f", symbol, amount))
 	}
@@ -89,7 +88,7 @@ func buildV1Design(design *models.Design) *v1Design {
 	return &v1Design{
 		ID:     design.ID,
 		Name:   design.Name,
-		Artist: buildV1Artist(design.R.Artist),
+		Artist: buildV1Artist(design.Artist),
 	}
 }
 

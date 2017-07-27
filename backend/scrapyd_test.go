@@ -20,7 +20,11 @@ const (
 
 func TestScrapydSchedule(t *testing.T) {
 	defer gock.Off()
-	gock.New(config.ScrapydURL()).Post("/schedule").BodyString("spider=" + spiderName).Reply(200).BodyString(jobID)
+	gock.New(config.App.ScrapydAddr).
+		Post("/schedule").
+		BodyString("spider=" + spiderName).
+		Reply(200).
+		BodyString(jobID)
 
 	newJobID, err := ScrapydSchedule(spiderName)
 
@@ -46,7 +50,7 @@ func TestIsFinished(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.response, func(t *testing.T) {
-			gock.New(config.ScrapydURL()).Get(validPath).Reply(200).BodyString(tt.response)
+			gock.New(config.App.ScrapydAddr).Get(validPath).Reply(200).BodyString(tt.response)
 			finished, err := ScrapydIsFinished(jobID)
 			st.Expect(t, finished, tt.wantFinished)
 			st.Expect(t, err, tt.wantErr)
@@ -63,7 +67,7 @@ func TestDownloadFeed(t *testing.T) {
 	fixture, err := os.Open(fixturePath)
 	st.Expect(t, err, nil)
 
-	gock.New(config.ScrapydURL()).Get("/download/" + jobID).Reply(200).File(fixturePath)
+	gock.New(config.App.ScrapydAddr).Get("/download/" + jobID).Reply(200).File(fixturePath)
 
 	feed, err := ScrapydDownloadFeed(jobID)
 

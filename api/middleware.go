@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/harrisbaird/dailyteedeals/modext"
-	"github.com/vattle/sqlboiler/boil"
+	"github.com/go-pg/pg/orm"
+	"github.com/harrisbaird/dailyteedeals/models"
 )
 
-func AuthTokenMiddleware(db boil.Executor) gin.HandlerFunc {
+func AuthTokenMiddleware(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var token string
 
@@ -17,7 +17,7 @@ func AuthTokenMiddleware(db boil.Executor) gin.HandlerFunc {
 			token = c.Request.Header.Get("X-Api-Key")
 		}
 
-		if !modext.ValidAPIUser(db, token) {
+		if !models.ValidAPIUser(db, token) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 			c.Abort()
 			return

@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/api/v1"
 	"github.com/harrisbaird/dailyteedeals/api/v2"
 	"github.com/harrisbaird/dailyteedeals/config"
-	"github.com/harrisbaird/dailyteedeals/modext"
-	"github.com/vattle/sqlboiler/boil"
+	"github.com/harrisbaird/dailyteedeals/models"
 )
 
-func SetupRoutes(db boil.Executor, hs hostSwitch) {
+func SetupRoutes(db orm.DB, hs hostSwitch) {
 	if config.IsProduction() {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -22,26 +22,32 @@ func SetupRoutes(db boil.Executor, hs hostSwitch) {
 	hs[config.App.DomainAPI] = apiRouter
 	hs[config.App.DomainGo] = productRedirectRouter
 
-	if config.IsDevelopment() {
+	// Also listen locally using lvh.me
+	if !config.IsProduction() {
 		hs["api.lvh.me:8080"] = apiRouter
 		hs["go.lvh.me:8080"] = productRedirectRouter
 	}
 }
 
-func ProductRedirectRouter(db boil.Executor, r *gin.Engine) *gin.Engine {
+func ProductRedirectRouter(db orm.DB, r *gin.Engine) *gin.Engine {
 	r.GET("/:slug", func(c *gin.Context) {
 
-		product, err := modext.FindProductBySlug(db, c.Param("slug"))
+		product, err := models.FindProductBySlug(db, c.Param("slug"))
 		if err != nil {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-		c.Redirect(http.StatusFound, modext.ProductBuyURL(product))
+		buyURL, err := product.BuyURL(db)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.Redirect(http.StatusFound, buyURL)
 	})
 	return r
 }
 
-func ApiRouter(db boil.Executor, r *gin.Engine) *gin.Engine {
+func ApiRouter(db orm.DB, r *gin.Engine) *gin.Engine {
 	r.Use(AuthTokenMiddleware(db))
 
 	v1Router := r.Group("/v1")

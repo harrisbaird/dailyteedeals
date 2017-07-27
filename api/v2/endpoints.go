@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/harrisbaird/dailyteedeals/modext"
-	"github.com/vattle/sqlboiler/boil"
+	"github.com/go-pg/pg/orm"
+	"github.com/harrisbaird/dailyteedeals/models"
 )
 
-func DealsEndpoint(db boil.Executor) gin.HandlerFunc {
+func DealsEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		products, err := modext.ActiveDeals(db)
+		products, err := models.ActiveDeals(db)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "deals not found", "string": err.Error()})
 			return
@@ -20,9 +20,9 @@ func DealsEndpoint(db boil.Executor) gin.HandlerFunc {
 	}
 }
 
-func DesignEndpoint(db boil.Executor) gin.HandlerFunc {
+func DesignEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		design, err := modext.FindDesignBySlug(db, c.Param("slug"))
+		design, err := models.FindDesignBySlug(db, c.Param("slug"))
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "design not found", "string": err.Error()})
 			return
@@ -32,20 +32,21 @@ func DesignEndpoint(db boil.Executor) gin.HandlerFunc {
 	}
 }
 
-func ArtistEndpoint(db boil.Executor) gin.HandlerFunc {
+func ArtistEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		artist, err := modext.FindArtistBySlug(db, c.Param("slug"))
+		artist, err := models.FindArtistBySlug(db, c.Param("slug"), 1)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "artist not found", "string": err.Error()})
 			return
 		}
+
 		c.JSON(http.StatusOK, gin.H{"artist": buildV2ArtistWithDesigns(artist)})
 	}
 }
 
-func SiteIndexEndpoint(db boil.Executor) gin.HandlerFunc {
+func SiteIndexEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sites, err := modext.ActiveSites(db)
+		sites, err := models.ActiveSites(db)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "sites not found", "string": err.Error()})
 			return
@@ -55,14 +56,14 @@ func SiteIndexEndpoint(db boil.Executor) gin.HandlerFunc {
 	}
 }
 
-func SiteShowEndpoint(db boil.Executor) gin.HandlerFunc {
+func SiteShowEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		site, err := modext.FindSiteBySlug(db, c.Param("slug"))
+		site, err := models.FindSiteBySlug(db, c.Param("slug"), 1)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "site not found", "string": err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"site": buildV2Site(site)})
+		c.JSON(http.StatusOK, gin.H{"site": buildV2SiteWithProducts(site)})
 	}
 }

@@ -23,6 +23,7 @@ func init() {
 
 func SetHTTPTestMode() {
 	httpClient.MaxRetries = 0
+	httpClient.Backoff = pester.DefaultBackoff
 }
 
 // TODO: Create common tempdir?
