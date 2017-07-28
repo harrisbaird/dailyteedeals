@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/harrisbaird/dailyteedeals/api"
+	"github.com/harrisbaird/dailyteedeals/backend"
 	"github.com/harrisbaird/dailyteedeals/database"
 	"github.com/harrisbaird/dailyteedeals/migrations"
 	"github.com/harrisbaird/dailyteedeals/utils"
@@ -24,8 +25,8 @@ func main() {
 	api.Start(db)
 	defer api.Stop()
 
-	// backend.Start(db)
-	// defer backend.Stop()
+	backend.Start(db)
+	defer backend.Stop()
 
 	log.Println("App is running")
 

@@ -1,26 +1,18 @@
-CGO_ENABLED=0
-BUILD_LOCATION ?= "."
-
 all: install build
-install: install_dependencies install_test_dependencies
-build: build_migrate build_dailyteedeals
 
-install_dependencies:
+install:
 	@echo "Installing dependencies"
 	go get github.com/golang/dep/cmd/dep
+	go get github.com/alecthomas/gometalinter
 	dep ensure
+	gometalinter --install
 
-install_test_dependencies:
-	@echo "Installing test dependencies"
-	go get github.com/onsi/ginkgo/ginkgo
+build:
+	@echo "Building production binary"
+	CGO_ENABLED=0 go build -o ./bin/dailyteedeals -ldflags="-s -w" main.go
 
-build_migrate:
-	@echo "Building migrate"
-	go build -o $(BUILD_LOCATION)/migrate -ldflags="-s -w" migrations/*.go
-
-build_dailyteedeals:
-	@echo "Building dailyteedeals"
-	go build -o $(BUILD_LOCATION)/dailyteedeals -ldflags="-s -w"
+lint:
+	gometalinter 
 
 test:
 	ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --progress

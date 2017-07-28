@@ -5,12 +5,12 @@ go:
 env:
   - POSTGRES_DATABASE=dailyteedeals_test
 install: 
-  - cp sqlboiler.travis.toml sqlboiler.toml
   - psql -c 'create database dailyteedeals_test;' -U postgres -h localhost
   - go get github.com/modocache/gover
   - go get github.com/mattn/goveralls
-  - make
+  - make install
 script:
+  - make lint
   - make test
 after_success:
   - gover

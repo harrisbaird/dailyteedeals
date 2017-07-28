@@ -9,14 +9,14 @@ import (
 )
 
 func Run() {
+	log.Println("Migrating database")
 	db := database.Connect()
 	defer db.Close()
-	log.Println("Migrating")
 	runMigrations(db)
 }
 
 func RunTest() {
-	log.Println("Migrating Test")
+	log.Println("Migrating test database")
 	db := database.ConnectTest()
 	defer db.Close()
 	runMigrations(db)

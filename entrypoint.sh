@@ -1,2 +1,0 @@
-/bin/migrate
-/bin/dailyteedeals

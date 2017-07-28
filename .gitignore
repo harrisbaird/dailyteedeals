@@ -16,3 +16,4 @@
 *.coverprofile
 docker-cloud.yml
 vendor/**
+bin
