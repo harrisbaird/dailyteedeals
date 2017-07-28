@@ -44,9 +44,10 @@ func TableCountDiff(db orm.DB, table string, testFn func()) int {
 }
 
 func ImportArtistFixtures(db orm.DB) []Artist {
+	truncateTable(db, "artists")
 	artists := []Artist{
-		{ID: 1, Name: "theduc", Slug: "55555-theduc", Urls: []string{"http://teepublic.com/user/theduc", "http://neatoshop.com/artist/Theduc"}},
-		{ID: 2, Name: "thehookshot", Slug: "55555-thehookshot", Urls: []string{"http://society6.com/thehookshot"}},
+		{Name: "theduc", Slug: "55555-theduc", Urls: []string{"http://teepublic.com/user/theduc", "http://neatoshop.com/artist/Theduc"}},
+		{Name: "thehookshot", Slug: "55555-thehookshot", Urls: []string{"http://society6.com/thehookshot"}},
 	}
 	if err := db.Insert(&artists); err != nil {
 		panic(err)
@@ -56,13 +57,14 @@ func ImportArtistFixtures(db orm.DB) []Artist {
 
 func ImportDesignFixtures(db orm.DB) []Design {
 	ImportArtistFixtures(db)
+	truncateTable(db, "designs")
 	designs := []Design{
-		{ID: 1, ArtistID: 1, Name: "Summer is here", Slug: "55555-summer-is-here"},
-		{ID: 2, ArtistID: 1, Name: "Training Corps"},
-		{ID: 3, ArtistID: 2, Name: "Thinking With Chickens"},
-		{ID: 4, ArtistID: 2, Name: "iGeek"},
-		{ID: 5, ArtistID: 2, Name: "Wizards Rule"},
-		{ID: 6, ArtistID: 2, Name: "The Legend of HEY!"},
+		{ArtistID: 1, Name: "Summer is here", Slug: "55555-summer-is-here"},
+		{ArtistID: 1, Name: "Training Corps"},
+		{ArtistID: 2, Name: "Thinking With Chickens"},
+		{ArtistID: 2, Name: "iGeek"},
+		{ArtistID: 2, Name: "Wizards Rule"},
+		{ArtistID: 2, Name: "The Legend of HEY!"},
 	}
 	if err := db.Insert(&designs); err != nil {
 		panic(err)
@@ -73,14 +75,15 @@ func ImportDesignFixtures(db orm.DB) []Design {
 func ImportProductFixtures(db orm.DB) []Product {
 	ImportDesignFixtures(db)
 	ImportSiteFixtures(db)
+	truncateTable(db, "products")
 	prices := map[string]string{"usd": "1200"}
 	products := []Product{
-		{ID: 1, DesignID: 1, SiteID: 1, URL: "http://test.com", Active: true, Deal: true, Prices: prices},
-		{ID: 2, DesignID: 2, SiteID: 1, Slug: "non_affiliate_link", URL: "http://test.com", Active: true, Deal: false, Prices: prices},
-		{ID: 3, DesignID: 3, SiteID: 2, Slug: "affiliate_link", URL: "http://test.com", Active: true, Deal: true, Prices: prices},
-		{ID: 4, DesignID: 4, SiteID: 2, URL: "http://test.com", Active: true, Deal: false, Prices: prices},
-		{ID: 5, DesignID: 5, SiteID: 2, URL: "http://test.com", Active: false, Deal: false, Prices: prices},
-		{ID: 6, DesignID: 6, SiteID: 2, URL: "http://test.com", Active: false, Deal: false, Prices: prices},
+		{DesignID: 1, SiteID: 1, URL: "http://test.com", Active: true, Deal: true, Prices: prices},
+		{DesignID: 2, SiteID: 1, Slug: "non_affiliate_link", URL: "http://test.com", Active: true, Deal: false, Prices: prices},
+		{DesignID: 3, SiteID: 2, Slug: "affiliate_link", URL: "http://test.com", Active: true, Deal: true, Prices: prices},
+		{DesignID: 4, SiteID: 2, URL: "http://test.com", Active: true, Deal: false, Prices: prices},
+		{DesignID: 5, SiteID: 2, URL: "http://test.com", Active: false, Deal: false, Prices: prices},
+		{DesignID: 6, SiteID: 2, URL: "http://test.com", Active: false, Deal: false, Prices: prices},
 	}
 	if err := db.Insert(&products); err != nil {
 		panic(err)
@@ -89,9 +92,10 @@ func ImportProductFixtures(db orm.DB) []Product {
 }
 
 func ImportSiteFixtures(db orm.DB) []Site {
+	truncateTable(db, "sites")
 	sites := []Site{
-		{ID: 1, Name: "Qwertee", Slug: "qwertee", DomainName: "qwertee.com"},
-		{ID: 2, Name: "Teefury", Slug: "teefury", DomainName: "teefury.com", AffiliateURL: "http://affiliatesite.com?url=%s"},
+		{Name: "Qwertee", Slug: "qwertee", DomainName: "qwertee.com"},
+		{Name: "Teefury", Slug: "teefury", DomainName: "teefury.com", AffiliateURL: "http://affiliatesite.com?url=%s"},
 	}
 	if err := db.Insert(&sites); err != nil {
 		panic(err)
@@ -100,14 +104,16 @@ func ImportSiteFixtures(db orm.DB) []Site {
 }
 
 func ImportUserFixtures(db orm.DB) []User {
+	truncateTable(db, "users")
 	users := []User{
-		{ID: 1, Email: "active_api_user@test.com", APIAccess: true, APIToken: "active_api_user", EncryptedPassword: "password"},
-		{ID: 2, Email: "inactive_api_user@test.com", APIAccess: false, APIToken: "inactive_api_user", EncryptedPassword: "password"},
+		{Email: "active_api_user@test.com", APIAccess: true, APIToken: "active_api_user", EncryptedPassword: "password"},
+		{Email: "inactive_api_user@test.com", APIAccess: false, APIToken: "inactive_api_user", EncryptedPassword: "password"},
 	}
 
 	if err := db.Insert(&users); err != nil {
 		panic(err)
 	}
+
 	return users
 }
 
@@ -146,4 +152,12 @@ func absint(i int) int {
 		return -i
 	}
 	return i
+}
+
+// truncateTable ensures table is empty and id nextval is reset to 1.
+func truncateTable(db orm.DB, table string) {
+	_, err := db.Exec("TRUNCATE TABLE " + table + " RESTART IDENTITY CASCADE")
+	if err != nil {
+		panic(err)
+	}
 }
