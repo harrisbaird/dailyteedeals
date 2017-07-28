@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/harrisbaird/dailyteedeals/api"
 	"github.com/harrisbaird/dailyteedeals/backend"
@@ -16,7 +17,7 @@ func main() {
 	migrations.Run()
 
 	db := database.Connect()
-	defer db.Close()
+	defer db.Close() // nolint: errcheck
 
 	if err := utils.UpdateRates(); err != nil {
 		panic(err)
@@ -31,6 +32,6 @@ func main() {
 	log.Println("App is running")
 
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt, os.Kill)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 	<-signalChan
 }

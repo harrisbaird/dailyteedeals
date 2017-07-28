@@ -3,11 +3,21 @@ language: go
 go:
   - 1.8
 env:
-  - POSTGRES_DATABASE=dailyteedeals_test
-before_script: 
+  global:
+    - POSTGRES_DATABASE=dailyteedeals_test
+    - MINIO_ACCESS_KEY=access_key
+    - MINIO_SECRET_KEY=secret_key
+    - MINIO_BROWSER=off
+install:
+  - make
+  - wget -O ./minio https://dl.minio.io/server/minio/release/linux-amd64/minio
+  - chmod +x ./minio
+before_script:
   - psql -c 'create database dailyteedeals_test;' -U postgres -h localhost
+  - mkdir /tmp/minio && ./minio server --quiet /tmp/minio & disown
 script:
-  - make lint && make test
+  - make lint
+  - make test
 after_success:
   - gover
   - goveralls -coverprofile=gover.coverprofile
