@@ -4,15 +4,10 @@ go:
   - 1.8
 env:
   - POSTGRES_DATABASE=dailyteedeals_test
-install: 
+before_script: 
   - psql -c 'create database dailyteedeals_test;' -U postgres -h localhost
-  - go get github.com/modocache/gover
-  - go get github.com/mattn/goveralls
-  - go get github.com/onsi/ginkgo/ginkgo
-  - make install
 script:
-  - make lint
-  - make test
+  - make lint && make test
 after_success:
   - gover
   - goveralls -coverprofile=gover.coverprofile

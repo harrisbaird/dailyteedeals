@@ -1,10 +1,15 @@
-all: install build
+all: install install_test
 
 install:
 	@echo "Installing dependencies"
 	go get github.com/golang/dep/cmd/dep
-	go get github.com/alecthomas/gometalinter
 	dep ensure
+
+install_test:
+	go get github.com/alecthomas/gometalinter
+	go get github.com/modocache/gover
+	go get github.com/mattn/goveralls
+	go get github.com/onsi/ginkgo/ginkgo
 	gometalinter --install
 
 build:
@@ -15,4 +20,4 @@ lint:
 	gometalinter $(go list ./... | grep -v /vendor/)
 
 test:
-	ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --progress
+	ginkgo -r --randomizeAllSpecs --randomizeSuites --cover --trace --race --progress
