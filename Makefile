@@ -12,7 +12,7 @@ build:
 	CGO_ENABLED=0 go build -o ./bin/dailyteedeals -ldflags="-s -w" main.go
 
 lint:
-	gometalinter 
+	gometalinter $(go list ./... | grep -v /vendor/)
 
 test:
 	ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --progress
