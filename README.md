@@ -1,3 +1,5 @@
 [![Build Status](https://travis-ci.org/harrisbaird/dailyteedeals.svg?branch=master)](https://travis-ci.org/harrisbaird/dailyteedeals)
-[![Coverage Status](https://coveralls.io/repos/github/harrisbaird/dailyteedeals/badge.svg?branch=master)](https://coveralls.io/github/harrisbaird/dailyteedeals?branch=master)
+[![codecov](https://codecov.io/gh/harrisbaird/dailyteedeals/branch/master/graph/badge.svg)](https://codecov.io/gh/harrisbaird/dailyteedeals)
 [![Go Report Card](https://goreportcard.com/badge/github.com/harrisbaird/dailyteedeals)](https://goreportcard.com/report/github.com/harrisbaird/dailyteedeals)
+[![Docker Build Statu](https://img.shields.io/docker/build/harrisbaird/dailyteedeals.svg)](https://hub.docker.com/r/harrisbaird/dailyteedeals/)
+[![](https://images.microbadger.com/badges/image/harrisbaird/dailyteedeals.svg)](https://microbadger.com/images/harrisbaird/dailyteedeals "Get your own image badge on microbadger.com")

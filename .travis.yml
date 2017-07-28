@@ -19,8 +19,7 @@ script:
   - make lint
   - make test
 after_success:
-  - gover
-  - goveralls -coverprofile=gover.coverprofile
+  - bash <(curl -s https://codecov.io/bash)
 services:
   - postgresql
 addons:

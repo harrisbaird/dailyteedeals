@@ -7,9 +7,6 @@ install:
 
 install_test:
 	go get github.com/alecthomas/gometalinter
-	go get github.com/modocache/gover
-	go get github.com/mattn/goveralls
-	go get github.com/onsi/ginkgo/ginkgo
 	go install .
 	gometalinter --install
 
@@ -21,4 +18,11 @@ lint:
 	gometalinter --fast
 
 test:
-	ginkgo -r --randomizeAllSpecs --randomizeSuites --cover --trace --race --progress
+	echo "" > coverage.txt
+	for d in $$(go list ./... | grep -v vendor); do \
+		go test -coverprofile=profile.out -covermode=atomic $$d; \
+		if [ -f profile.out ]; then \
+			cat profile.out >> coverage.txt; \
+			rm profile.out; \
+		fi \
+	done
