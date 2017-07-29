@@ -95,6 +95,8 @@ func init() {
 		);
 
 		CREATE INDEX IF NOT EXISTS index_users_on_api_access_and_api_token ON users USING btree (api_access, api_token);
+
+		INSERT INTO users VALUES (DEFAULT, 'test@example.com', false, true, 'TEST_USER', '');
 	`)
 		return err
 	}, func(db migrations.DB) error {
