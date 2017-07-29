@@ -1,0 +1,28 @@
+version: '3'
+services:
+  dailyteedeals:
+    image: harrisbaird/dailyteedeals
+    environment:
+      - APP_ENV=production
+      - POSTGRES_HOST=postgres
+      - AWS_ACCESS_KEY_ID=*********AWS_ACCESS_KEY_ID*********
+      - AWS_SECRET_ACCESS_KEY=*********AWS_SECRET_ACCESS_KEY*********
+      - AWS_S3_BUCKET=*********AWS_SECRET_ACCESS_KEY*********
+    links:
+      - postgres
+      - redis
+      - scrapyd
+    restart: always
+  scrapyd:
+    image: harrisbaird/dailyteedeals_scrapers
+    restart: always
+  postgres:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_DB=dailyteedeals
+      - POSTGRES_USER=dailyteedeals
+      - POSTGRES_PASSWORD=""
+    restart: always
+  redis:
+    image: redis:alpine
+    restart: always
