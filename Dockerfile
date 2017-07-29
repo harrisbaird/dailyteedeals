@@ -1,17 +1,9 @@
-# Build binary
-FROM golang:alpine AS build-env
+FROM golang:alpine
 LABEL maintainer "daniel@harrisbaird.co.uk"
-RUN apk --update --no-cache add git ca-certificates make
+RUN apk --update --no-cache add git make ca-certificates
 WORKDIR /go/src/github.com/harrisbaird/dailyteedeals
 ADD . .
-RUN make install_dependencies && \
-    BUILD_LOCATION="/bin" make build
-
-# Small runtime image
-FROM alpine
-RUN apk --update --no-cache add ca-certificates
-COPY --from=build-env /bin/dailyteedeals /bin/dailyteedeals
-COPY --from=build-env /bin/migrate /bin/migrate
-COPY entrypoint.sh /bin/entrypoint.sh
-ENTRYPOINT /bin/entrypoint.sh
+RUN make install && make build && \
+    mv /go/src/github.com/harrisbaird/dailyteedeals/bin/dailyteedeals /bin/dailyteedeals
+CMD ["/bin/dailyteedeals"]
 EXPOSE 8080

@@ -20,6 +20,7 @@ script:
   - make test
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - curl --data build=true -X POST $DOCKERHUB_TRIGGER_URL
 services:
   - postgresql
 addons:
