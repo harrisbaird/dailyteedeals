@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/go-pg/pg/orm"
@@ -21,20 +22,28 @@ type SpiderItem struct {
 }
 
 type ScrapydItem struct {
-	Name         string            `json:"name"`
-	Description  string            `json:"description"`
-	URL          string            `json:"url"`
-	ArtistName   string            `json:"artist_name"`
-	ArtistUrls   []string          `json:"artist_urls"`
-	Prices       map[string]string `json:"prices"`
-	ImageURL     string            `json:"image_url"`
-	Tags         []string          `json:"tags"`
-	FabricColors []string          `json:"fabric_colors"`
-	Active       bool              `json:"active"`
-	Deal         bool              `json:"deal"`
-	LastChance   bool              `json:"last_chance"`
-	Valid        bool              `json:"valid"`
-	ExpiresAt    time.Time         `json:"expires_at"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description"`
+	URL          string         `json:"url"`
+	ArtistName   string         `json:"artist_name"`
+	ArtistUrls   []string       `json:"artist_urls"`
+	Prices       map[string]int `json:"prices"`
+	ImageURL     string         `json:"image_url"`
+	Tags         []string       `json:"tags"`
+	FabricColors []string       `json:"fabric_colors"`
+	Active       bool           `json:"active"`
+	Deal         bool           `json:"deal"`
+	LastChance   bool           `json:"last_chance"`
+	Valid        bool           `json:"valid"`
+	ExpiresAt    time.Time      `json:"expires_at"`
+}
+
+func (item *ScrapydItem) StringPrices() map[string]string {
+	out := make(map[string]string)
+	for k, v := range item.Prices {
+		out[k] = strconv.Itoa(v)
+	}
+	return out
 }
 
 func CreateSpiderItem(db orm.DB, spiderJobID int, data string) (*SpiderItem, error) {
@@ -45,7 +54,9 @@ func CreateSpiderItem(db orm.DB, spiderJobID int, data string) (*SpiderItem, err
 
 func (item *SpiderItem) ParseItemData(db orm.DB, minioConn *utils.MinioConnection) error {
 	var data ScrapydItem
-	json.Unmarshal([]byte(item.ItemData), &data)
+	if err := json.Unmarshal([]byte(item.ItemData), &data); err != nil {
+		return err
+	}
 
 	artist, err := FindOrCreateArtist(db, data.ArtistName, data.ArtistUrls)
 	if err != nil {
@@ -61,7 +72,7 @@ func (item *SpiderItem) ParseItemData(db orm.DB, minioConn *utils.MinioConnectio
 		DesignID:   design.ID,
 		SiteID:     item.SpiderJob.SiteID,
 		URL:        data.URL,
-		Prices:     data.Prices,
+		Prices:     data.StringPrices(),
 		Active:     data.Active,
 		Deal:       data.Deal,
 		LastChance: data.LastChance,

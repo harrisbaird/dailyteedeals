@@ -42,7 +42,6 @@ func Start(db *pg.DB) {
 		return next()
 	})
 	pool.Middleware((*JobContext).Log)
-	pool.Middleware((*JobContext).FindSpiderJob)
 
 	// Setup job scheduling
 	if config.IsProduction() {
@@ -77,22 +76,6 @@ func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
 	return err
 }
 
-func (c *JobContext) FindSpiderJob(job *work.Job, next work.NextMiddlewareFunc) error {
-	if _, ok := job.Args["spider_job_id"]; ok {
-		if err := c.DB.Model(&c.SpiderJob).Where("id=?", job.ArgInt64("spider_job_id")).First(); err != nil {
-			return err
-		}
-	}
-
-	if _, ok := job.Args["spider_item_id"]; ok {
-		if err := c.DB.Model(&c.SpiderItem).Where("id=?", job.ArgInt64("spider_item_id")).First(); err != nil {
-			return err
-		}
-	}
-
-	return next()
-}
-
 // ScheduleDeal schedules jobs for active sites which have
 // deal_scraper enabled.
 func (c *JobContext) ScheduleDeal(job *work.Job) error {
@@ -109,7 +92,11 @@ func (c *JobContext) ScheduleFull(job *work.Job) error {
 // and schedules a 'parse_feed' job, otherwise reschedules a 'wait_for_scraper
 // job in 5 seconds.
 func (c *JobContext) WaitForScraper(job *work.Job) error {
-	finished, err := ScrapydIsFinished(c.SpiderJob.ScrapydJobID)
+	var spiderJob models.SpiderJob
+	if err := c.DB.Model(&spiderJob).Where("id=?", job.ArgInt64("spider_job_id")).First(); err != nil {
+		return err
+	}
+	finished, err := ScrapydIsFinished(spiderJob.ScrapydJobID)
 	if err != nil {
 		return err
 	}
@@ -128,18 +115,22 @@ func (c *JobContext) WaitForScraper(job *work.Job) error {
 // ParseFeed parses downloads and parses the item feed
 // and creates a 'parse_item' job for each item.
 func (c *JobContext) ParseFeed(job *work.Job) error {
-	if err := models.MarkProductsInactive(c.DB, c.SpiderJob.SiteID, c.SpiderJob.JobType == models.SiteDealJobType.String()); err != nil {
+	var spiderJob models.SpiderJob
+	if err := c.DB.Model(&spiderJob).Where("id=?", job.ArgInt64("spider_job_id")).First(); err != nil {
+		return err
+	}
+	if err := models.MarkProductsInactive(c.DB, spiderJob.SiteID, spiderJob.JobType == models.SiteDealJobType.String()); err != nil {
 		return err
 	}
 
-	feed, err := ScrapydDownloadFeed(c.SpiderJob.ScrapydJobID)
+	feed, err := ScrapydDownloadFeed(spiderJob.ScrapydJobID)
 	if err != nil {
 		return err
 	}
 
 	scanner := bufio.NewScanner(feed)
 	for scanner.Scan() {
-		spiderItem, err := models.CreateSpiderItem(c.DB, int(c.SpiderJob.ID), scanner.Text())
+		spiderItem, err := models.CreateSpiderItem(c.DB, int(spiderJob.ID), scanner.Text())
 		if err != nil {
 			fmt.Println("CreateSpiderItem: " + err.Error())
 		}
@@ -152,11 +143,15 @@ func (c *JobContext) ParseFeed(job *work.Job) error {
 
 // ParseItem parses the item data, creating the required database rows.
 func (c *JobContext) ParseItem(job *work.Job) error {
+	var spiderItem models.SpiderItem
+	if err := c.DB.Model(&spiderItem).Column("spider_item.*", "SpiderJob").Where("spider_item.id=?", job.ArgInt64("spider_item_id")).First(); err != nil {
+		return err
+	}
 	err := c.DB.RunInTransaction(func(tx *pg.Tx) error {
-		err := c.SpiderItem.ParseItemData(tx, minioConn)
+		err := spiderItem.ParseItemData(tx, minioConn)
 		if err != nil {
-			c.SpiderItem.Error = err.Error()
-			tx.Update(&c.SpiderItem)
+			spiderItem.Error = err.Error()
+			tx.Update(&spiderItem)
 		}
 		return err
 	})
