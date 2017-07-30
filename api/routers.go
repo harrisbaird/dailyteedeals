@@ -5,8 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
-	"github.com/harrisbaird/dailyteedeals/api/v1"
-	"github.com/harrisbaird/dailyteedeals/api/v2"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/harrisbaird/dailyteedeals/models"
 )
@@ -52,16 +50,16 @@ func ApiRouter(db orm.DB, r *gin.Engine) *gin.Engine {
 
 	v1Router := r.Group("/v1")
 	{
-		v1Router.GET("/products.json", v1.ProductsEndpoint(db))
+		v1Router.GET("/products.json", V1ProductsEndpoint(db))
 	}
 
 	v2Router := r.Group("/v2")
 	{
-		v2Router.GET("/deals", v2.DealsEndpoint(db))
-		v2Router.GET("/designs/:slug", v2.DesignEndpoint(db))
-		v2Router.GET("/artists/:slug", v2.ArtistEndpoint(db))
-		v2Router.GET("/sites", v2.SiteIndexEndpoint(db))
-		v2Router.GET("/sites/:slug", v2.SiteShowEndpoint(db))
+		v2Router.GET("/deals", V2DealsEndpoint(db))
+		v2Router.GET("/designs/:slug", V2DesignEndpoint(db))
+		v2Router.GET("/artists/:slug", V2ArtistEndpoint(db))
+		v2Router.GET("/sites", V2SiteIndexEndpoint(db))
+		v2Router.GET("/sites/:slug", V2SiteShowEndpoint(db))
 	}
 
 	return r

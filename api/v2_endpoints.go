@@ -1,4 +1,4 @@
-package v2
+package api
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 	"github.com/harrisbaird/dailyteedeals/models"
 )
 
-func DealsEndpoint(db orm.DB) gin.HandlerFunc {
+func V2DealsEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, err := models.ActiveDeals(db)
 		if err != nil {
@@ -20,7 +20,7 @@ func DealsEndpoint(db orm.DB) gin.HandlerFunc {
 	}
 }
 
-func DesignEndpoint(db orm.DB) gin.HandlerFunc {
+func V2DesignEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		design, err := models.FindDesignBySlug(db, c.Param("slug"))
 		if err != nil {
@@ -32,7 +32,7 @@ func DesignEndpoint(db orm.DB) gin.HandlerFunc {
 	}
 }
 
-func ArtistEndpoint(db orm.DB) gin.HandlerFunc {
+func V2ArtistEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		artist, err := models.FindArtistBySlug(db, c.Param("slug"), 1)
 		if err != nil {
@@ -44,7 +44,7 @@ func ArtistEndpoint(db orm.DB) gin.HandlerFunc {
 	}
 }
 
-func SiteIndexEndpoint(db orm.DB) gin.HandlerFunc {
+func V2SiteIndexEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sites, err := models.ActiveSites(db)
 		if err != nil {
@@ -56,7 +56,7 @@ func SiteIndexEndpoint(db orm.DB) gin.HandlerFunc {
 	}
 }
 
-func SiteShowEndpoint(db orm.DB) gin.HandlerFunc {
+func V2SiteShowEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		site, err := models.FindSiteBySlug(db, c.Param("slug"), 1)
 		if err != nil {

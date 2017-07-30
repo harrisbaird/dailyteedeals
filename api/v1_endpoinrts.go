@@ -1,4 +1,4 @@
-package v1
+package api
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 	"github.com/harrisbaird/dailyteedeals/models"
 )
 
-func ProductsEndpoint(db orm.DB) gin.HandlerFunc {
+func V1ProductsEndpoint(db orm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		products, productsErr := models.ActiveDeals(db)
 		if productsErr != nil {
