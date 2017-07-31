@@ -7,9 +7,10 @@ import (
 	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/harrisbaird/dailyteedeals/models"
+	"github.com/harrisbaird/dailyteedeals/utils"
 )
 
-func SetupRoutes(db orm.DB, hs hostSwitch) {
+func SetupRoutes(db orm.DB, hs utils.HostSwitch) {
 	if config.IsProduction() {
 		gin.SetMode(gin.ReleaseMode)
 	}

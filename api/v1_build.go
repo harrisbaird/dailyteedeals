@@ -64,7 +64,7 @@ func buildV1Api(products []*models.Product) []v1Product {
 var v1Currencies = []string{"USD", "GBP", "EUR"}
 
 func buildV1Price(product *models.Product) string {
-	prices := utils.ConvertPrices(product.Prices)
+	prices := product.ConvertedPrices
 
 	output := []string{}
 	for _, currency := range v1Currencies {

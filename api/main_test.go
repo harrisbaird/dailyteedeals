@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"path"
 	"testing"
 
@@ -105,11 +104,6 @@ func TestApi(t *testing.T) {
 				st.Assert(t, err, nil)
 
 				fixturePath := path.Join(utils.ProjectRootPath(), "api/testdata", tt.fixturePath)
-
-				out, _ := os.Create(fixturePath)
-				out.Truncate(0)
-				out.Seek(0, 0)
-				out.Write(have)
 
 				st.Expect(t, have, want)
 			})

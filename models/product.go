@@ -39,11 +39,12 @@ type Product struct {
 	SiteID          int
 	Slug            string `sql:",notnull"`
 	URL             string
-	Active          bool              `sql:",notnull"`
-	Deal            bool              `sql:",notnull"`
-	LastChance      bool              `sql:",notnull"`
-	Tags            []string          `pg:",array" sql:"tags,DEFAULT:'{}',notnull"`
-	Prices          map[string]string `pg:",hstore"`
+	Active          bool                               `sql:",notnull"`
+	Deal            bool                               `sql:",notnull"`
+	LastChance      bool                               `sql:",notnull"`
+	Tags            []string                           `pg:",array" sql:"tags,DEFAULT:'{}',notnull"`
+	Prices          map[string]string                  `pg:",hstore"`
+	ConvertedPrices map[string]*utils.ApproximatePrice `sql:"-"`
 	ImageBackground string
 	ImageUpdatedAt  time.Time
 	ExpiresAt       pg.NullTime
@@ -105,6 +106,14 @@ func (p *Product) ImageURL(imageType ImageType) string {
 		p.ID, p.ImageUpdatedAt.Unix())
 }
 
+func (p *Product) SmallImageURL() string {
+	return p.ImageURL(SmallImageType)
+}
+
+func (p *Product) LargeImageURL() string {
+	return p.ImageURL(LargeImageType)
+}
+
 func (p *Product) UpdateImageIfExpired(db orm.DB, minioConn *utils.MinioConnection, url string) error {
 	if time.Since(p.ImageUpdatedAt) < updateImagesEvery {
 		return nil
@@ -146,6 +155,11 @@ func (p *Product) BeforeInsert(db orm.DB) error {
 
 func (p *Product) BeforeUpdate(db orm.DB) error {
 	return p.normalize(db)
+}
+
+func (p *Product) AfterQuery(db orm.DB) error {
+	p.ConvertedPrices = utils.ConvertPrices(p.Prices)
+	return nil
 }
 
 func (p *Product) normalize(db orm.DB) error {

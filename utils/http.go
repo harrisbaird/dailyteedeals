@@ -89,6 +89,16 @@ func HTTPPostForm(url string, data url.Values) (*http.Response, error) {
 	return httpClient.PostForm(url, data)
 }
 
+type HostSwitch map[string]http.Handler
+
+func (hs HostSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if handler := hs[r.Host]; handler != nil {
+		handler.ServeHTTP(w, r)
+	} else {
+		http.Error(w, "Forbidden", 403)
+	}
+}
+
 func httpGet(url string) (*http.Response, error) {
 	resp, err := httpClient.Get(url)
 	if err != nil {

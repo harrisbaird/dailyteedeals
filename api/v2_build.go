@@ -39,16 +39,16 @@ type v2Images struct {
 }
 
 type v2Product struct {
-	ID         int                               `json:"id"`
-	Design     *v2Design                         `json:"design,omitempty"`
-	Site       *v2Site                           `json:"site"`
-	Slug       string                            `json:"slug"`
-	BuyURL     string                            `json:"buyURL"`
-	Active     bool                              `json:"active"`
-	Deal       bool                              `json:"deal"`
-	LastChance bool                              `json:"lastChance"`
-	Prices     map[string]utils.ApproximatePrice `json:"prices"`
-	Images     *v2Images                         `json:"images"`
+	ID         int                                `json:"id"`
+	Design     *v2Design                          `json:"design,omitempty"`
+	Site       *v2Site                            `json:"site"`
+	Slug       string                             `json:"slug"`
+	BuyURL     string                             `json:"buyURL"`
+	Active     bool                               `json:"active"`
+	Deal       bool                               `json:"deal"`
+	LastChance bool                               `json:"lastChance"`
+	Prices     map[string]*utils.ApproximatePrice `json:"prices"`
+	Images     *v2Images                          `json:"images"`
 }
 
 func buildV2Product(product *models.Product) *v2Product {
@@ -61,7 +61,7 @@ func buildV2Product(product *models.Product) *v2Product {
 		Active:     product.Active,
 		Deal:       product.Deal,
 		LastChance: product.LastChance,
-		Prices:     utils.ConvertPrices(product.Prices),
+		Prices:     product.ConvertedPrices,
 		Images:     buildV2Images(product),
 	}
 }

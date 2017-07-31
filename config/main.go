@@ -19,6 +19,7 @@ type Config struct {
 	PostgresPassword string `env:"POSTGRES_PASSWORD" envDefault:""`
 	PostgresDatabase string `env:"POSTGRES_DATABASE" envDefault:"dailyteedeals"`
 
+	DomainWeb    string `env:"DOMAIN_WEB" envDefault:"dailyteedeals.com"`
 	DomainAPI    string `env:"DOMAIN_API" envDefault:"api.dailyteedeals.com"`
 	DomainGo     string `env:"DOMAIN_GO" envDefault:"go.dailyteedeals.com"`
 	DomainImages string `env:"DOMAIN_IMAGES" envDefault:"cdn.dailyteedeals.com"`
@@ -52,7 +53,7 @@ func PostgresConnectionOptions() *pg.Options {
 
 func PostgresTestConnectionOptions() *pg.Options {
 	return &pg.Options{
-		Addr:     "localhost:5432",
+		Addr:     "0.0.0.0:5432",
 		User:     "postgres",
 		Password: "",
 		Database: "dailyteedeals_test",
@@ -63,7 +64,6 @@ func PostgresTestConnectionOptions() *pg.Options {
 func parseConfig() *Config {
 	config := Config{}
 	err := env.Parse(&config)
-	// Don't panic if missing env vars in test mode
 	if err != nil && config.Env == "production" {
 		panic(err)
 	}
