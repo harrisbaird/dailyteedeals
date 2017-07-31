@@ -1,4 +1,4 @@
-package api_test
+package server_test
 
 import (
 	"io/ioutil"
@@ -9,9 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
-	. "github.com/harrisbaird/dailyteedeals/api"
 	"github.com/harrisbaird/dailyteedeals/database"
 	"github.com/harrisbaird/dailyteedeals/models"
+	. "github.com/harrisbaird/dailyteedeals/server"
 	"github.com/harrisbaird/dailyteedeals/utils"
 	"github.com/nbio/st"
 )
