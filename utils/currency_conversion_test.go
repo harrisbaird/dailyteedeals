@@ -26,9 +26,9 @@ func TestConvertPrices(t *testing.T) {
 
 	prices := ConvertPrices(map[string]string{"USD": "1200"})
 	st.Expect(t, prices, map[string]ApproximatePrice{
-		"USD": ApproximatePrice{Amount: 1200, Currency: "USD", Approximate: false},
-		"EUR": ApproximatePrice{Amount: 1026, Currency: "EUR", Approximate: true},
-		"GBP": ApproximatePrice{Amount: 913, Currency: "GBP", Approximate: true},
+		"USD": ApproximatePrice{Amount: 1200, Currency: "USD", Formatted: "$12", Approximate: false},
+		"EUR": ApproximatePrice{Amount: 1026, Currency: "EUR", Formatted: "€10", Approximate: true},
+		"GBP": ApproximatePrice{Amount: 913, Currency: "GBP", Formatted: "£9", Approximate: true},
 	})
 	st.Expect(t, gock.HasUnmatchedRequest(), false)
 }

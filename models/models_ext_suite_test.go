@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/harrisbaird/dailyteedeals/migrations"
 	"github.com/harrisbaird/dailyteedeals/utils"
 )
 
@@ -13,7 +12,6 @@ func init() {
 }
 
 func TestMain(m *testing.M) {
-	migrations.RunTest()
 	retCode := m.Run()
 	os.Exit(retCode)
 }

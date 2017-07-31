@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
-	"github.com/harrisbaird/dailyteedeals/database"
 	. "github.com/harrisbaird/dailyteedeals/models"
 	"github.com/nbio/st"
 )
@@ -22,7 +21,7 @@ func TestFindOrCreateArtist(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			RunInTestTransaction(false, func(db orm.DB) {
 				var artist *Artist
 				var err error
 
@@ -56,7 +55,7 @@ func TestFindArtistBySlug(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			RunInTestTransaction(false, func(db orm.DB) {
 				ImportArtistFixtures(db)
 				artist, err := FindArtistBySlug(db, tt.slug, 1)
 				st.Expect(t, err, tt.wantErr)
@@ -67,7 +66,7 @@ func TestFindArtistBySlug(t *testing.T) {
 }
 
 // func TestArtistLoadActiveDesigns(t *testing.T) {
-// 	database.RunInTestTransaction(true, func(db orm.DB) {
+// 	models.RunInTestTransaction(true, func(db orm.DB) {
 // 		ImportProductFixtures(db)
 
 // 		artist, err := FindArtistBySlug(db, "55555-thehookshot")
@@ -119,7 +118,7 @@ func TestArtistAppendWhitelistedURLS(t *testing.T) {
 }
 
 func TestArtistHooks(t *testing.T) {
-	database.RunInTestTransaction(false, func(db orm.DB) {
+	RunInTestTransaction(false, func(db orm.DB) {
 		artist := Artist{Name: "   test artist  ",
 			Urls: []string{"http://www.google.com", "", "https://othersite.com"},
 			Tags: []string{"other artist alias"}}

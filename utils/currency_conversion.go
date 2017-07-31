@@ -45,15 +45,19 @@ func UpdateRates() error {
 	return nil
 }
 
-func ConvertPrices(rawPrices map[string]string) map[string]*ApproximatePrice {
+func ConvertPrices(rawPrices map[string]string) map[string]ApproximatePrice {
 	keys := []string{}
-	output := make(map[string]*ApproximatePrice)
+	output := make(map[string]ApproximatePrice)
 
 	for k, v := range rawPrices {
 		number, _ := strconv.Atoi(v)
 		key := strings.ToUpper(k)
-		output[key] = &ApproximatePrice{Amount: number, Currency: key, Formatted: format(number, key)}
+		output[key] = ApproximatePrice{Amount: number, Currency: key, Formatted: format(number, key)}
 		keys = append(keys, key)
+	}
+
+	if len(keys) == 0 {
+		return output
 	}
 
 	wanted := StringSlicesDiff(keys, getCurrencies())
@@ -65,7 +69,7 @@ func ConvertPrices(rawPrices map[string]string) map[string]*ApproximatePrice {
 
 		rate := CurrentRates[from].Rates[to]
 		convertedAmount := int(float64(amount) * rate)
-		output[to] = &ApproximatePrice{Amount: convertedAmount, Currency: to, Formatted: format(convertedAmount, to), Approximate: true}
+		output[to] = ApproximatePrice{Amount: convertedAmount, Currency: to, Formatted: format(convertedAmount, to), Approximate: true}
 	}
 
 	return output

@@ -4,12 +4,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"path"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
-	"github.com/harrisbaird/dailyteedeals/database"
 	"github.com/harrisbaird/dailyteedeals/models"
 	. "github.com/harrisbaird/dailyteedeals/server"
 	"github.com/harrisbaird/dailyteedeals/utils"
@@ -29,7 +27,7 @@ func TestProductRedirectRouter(t *testing.T) {
 		{"Invalid", 404, "/invalid", "", false},
 	}
 
-	database.RunInTestTransaction(false, func(db orm.DB) {
+	models.RunInTestTransaction(false, func(db orm.DB) {
 		models.ImportProductFixtures(db)
 
 		server := httptest.NewServer(ProductRedirectRouter(db, gin.New()))
@@ -84,7 +82,7 @@ func TestApi(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			models.RunInTestTransaction(false, func(db orm.DB) {
 				models.ImportUserFixtures(db)
 				models.ImportProductFixtures(db)
 
@@ -100,10 +98,8 @@ func TestApi(t *testing.T) {
 				st.Expect(t, resp.Header.Get("Content-Type"), "application/json; charset=utf-8")
 
 				st.Assert(t, err, nil)
-				want, err := ioutil.ReadFile(utils.ProjectRootPath("api", "testdata", tt.fixturePath))
+				want, err := ioutil.ReadFile(utils.ProjectRootPath("server", "testdata", tt.fixturePath))
 				st.Assert(t, err, nil)
-
-				fixturePath := path.Join(utils.ProjectRootPath(), "api/testdata", tt.fixturePath)
 
 				st.Expect(t, have, want)
 			})

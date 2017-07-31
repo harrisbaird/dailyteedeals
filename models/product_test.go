@@ -10,7 +10,6 @@ import (
 	gock "gopkg.in/h2non/gock.v1"
 
 	"github.com/go-pg/pg/orm"
-	"github.com/harrisbaird/dailyteedeals/database"
 	. "github.com/harrisbaird/dailyteedeals/models"
 	"github.com/harrisbaird/dailyteedeals/utils"
 	"github.com/nbio/st"
@@ -33,7 +32,7 @@ func TestMarkProductsInactive(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			RunInTestTransaction(false, func(db orm.DB) {
 				ImportProductFixtures(db)
 				err := MarkProductsInactive(db, tt.args.siteID, tt.args.deal)
 				st.Expect(t, err, nil)
@@ -75,7 +74,7 @@ func TestBuyURL(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			RunInTestTransaction(false, func(db orm.DB) {
 				ImportSiteFixtures(db)
 				product := Product{ID: 1, SiteID: tt.siteID, URL: "http://site.com/product"}
 				buyURL, err := product.BuyURL(db)
@@ -133,7 +132,7 @@ func TestProductUpdateImage(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			utils.RunMinioTest(func(minioConn *utils.MinioConnection) {
-				database.RunInTestTransaction(false, func(db orm.DB) {
+				RunInTestTransaction(false, func(db orm.DB) {
 					product := ImportProductFixtures(db)[0]
 					product.ImageUpdatedAt = tt.imageUpdatedAt
 
@@ -157,7 +156,7 @@ func TestProductUpdateImage(t *testing.T) {
 }
 
 func TestProductHooks(t *testing.T) {
-	database.RunInTestTransaction(false, func(db orm.DB) {
+	RunInTestTransaction(false, func(db orm.DB) {
 		ImportProductFixtures(db)
 		product := Product{DesignID: 2, SiteID: 2, URL: "http://test.com"}
 		err := db.Insert(&product)

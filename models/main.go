@@ -1,9 +1,10 @@
-package database
+package models
 
 import (
 	"log"
 	"time"
 
+	"github.com/go-pg/migrations"
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/config"
@@ -12,11 +13,9 @@ import (
 const maxConnectionAttempts = 30 // seconds
 
 func Connect() *pg.DB {
-	return retriableConnect(config.PostgresConnectionOptions(), 0)
-}
-
-func ConnectTest() *pg.DB {
-	return retriableConnect(config.PostgresTestConnectionOptions(), 0)
+	db := retriableConnect(config.PostgresConnectionOptions(), 0)
+	runMigrations(db)
+	return db
 }
 
 func retriableConnect(pgOptions *pg.Options, attempt int) *pg.DB {
@@ -46,7 +45,8 @@ func retriableConnect(pgOptions *pg.Options, attempt int) *pg.DB {
 
 // RunInTestTransaction wraps database queries in a transaction.
 func RunInTestTransaction(logging bool, fn func(orm.DB)) {
-	db := ConnectTest()
+	db := retriableConnect(config.PostgresTestConnectionOptions(), 0)
+	runMigrations(db)
 
 	if logging {
 		db.OnQueryProcessed(func(event *pg.QueryProcessedEvent) {
@@ -69,4 +69,15 @@ func RunInTestTransaction(logging bool, fn func(orm.DB)) {
 	defer tx.Rollback()
 
 	fn(tx)
+}
+
+func runMigrations(db *pg.DB) {
+	oldVersion, newVersion, err := migrations.Run(db, "up")
+	if err != nil {
+		panic(err)
+	}
+
+	if oldVersion != newVersion {
+		log.Panicf("Migrated database from %d to %d\n", oldVersion, newVersion)
+	}
 }

@@ -7,16 +7,13 @@ import (
 	"syscall"
 
 	"github.com/harrisbaird/dailyteedeals/backend"
-	"github.com/harrisbaird/dailyteedeals/database"
-	"github.com/harrisbaird/dailyteedeals/migrations"
+	"github.com/harrisbaird/dailyteedeals/models"
 	"github.com/harrisbaird/dailyteedeals/server"
 	"github.com/harrisbaird/dailyteedeals/utils"
 )
 
 func main() {
-	migrations.Run()
-
-	db := database.Connect()
+	db := models.Connect()
 	defer db.Close() // nolint: errcheck
 
 	if err := utils.UpdateRates(); err != nil {

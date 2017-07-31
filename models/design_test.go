@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/go-pg/pg/orm"
-	"github.com/harrisbaird/dailyteedeals/database"
 	. "github.com/harrisbaird/dailyteedeals/models"
 	"github.com/nbio/st"
 )
@@ -21,7 +20,7 @@ func TestFindOrCreateDesign(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			RunInTestTransaction(false, func(db orm.DB) {
 				ImportDesignFixtures(db)
 				var design *Design
 				var err error
@@ -52,7 +51,7 @@ func TestFindDesignBySlug(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			database.RunInTestTransaction(false, func(db orm.DB) {
+			RunInTestTransaction(false, func(db orm.DB) {
 				ImportDesignFixtures(db)
 				design, err := FindDesignBySlug(db, tt.slug)
 				st.Expect(t, design.ID, tt.wantID)
@@ -63,7 +62,7 @@ func TestFindDesignBySlug(t *testing.T) {
 }
 
 // func TestDesignHooks(t *testing.T) {
-// 	database.RunInTestTransaction(false, func(db boil.Executor) {
+// 	models.RunInTestTransaction(false, func(db boil.Executor) {
 // 		CreateArtistFixtures(db)
 // 		design := models.Design{
 // 			ArtistID:     1,

@@ -39,12 +39,12 @@ type Product struct {
 	SiteID          int
 	Slug            string `sql:",notnull"`
 	URL             string
-	Active          bool                               `sql:",notnull"`
-	Deal            bool                               `sql:",notnull"`
-	LastChance      bool                               `sql:",notnull"`
-	Tags            []string                           `pg:",array" sql:"tags,DEFAULT:'{}',notnull"`
-	Prices          map[string]string                  `pg:",hstore"`
-	ConvertedPrices map[string]*utils.ApproximatePrice `sql:"-"`
+	Active          bool                              `sql:",notnull"`
+	Deal            bool                              `sql:",notnull"`
+	LastChance      bool                              `sql:",notnull"`
+	Tags            []string                          `pg:",array" sql:"tags,DEFAULT:'{}',notnull"`
+	Prices          map[string]string                 `pg:",hstore"`
+	ConvertedPrices map[string]utils.ApproximatePrice `sql:"-"`
 	ImageBackground string
 	ImageUpdatedAt  time.Time
 	ExpiresAt       pg.NullTime
