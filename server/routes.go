@@ -2,7 +2,12 @@ package server
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cache"
+	"github.com/gin-contrib/cache/persistence"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/config"
@@ -15,7 +20,7 @@ func SetupRoutes(db orm.DB, hs utils.HostSwitch) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	apiRouter := ApiRouter(db, gin.Default())
+	apiRouter := ApiRouter(db, newRouter())
 	productRedirectRouter := ProductRedirectRouter(db, gin.Default())
 
 	hs[config.App.DomainAPI] = apiRouter
@@ -26,6 +31,20 @@ func SetupRoutes(db orm.DB, hs utils.HostSwitch) {
 		hs["api.lvh.me:8080"] = apiRouter
 		hs["go.lvh.me:8080"] = productRedirectRouter
 	}
+}
+
+func newRouter() *gin.Engine {
+	router := gin.Default()
+
+	router.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	store := persistence.NewInMemoryStore(60 * time.Minute)
+	router.Use(cache.SiteCache(store, 60*time.Minute))
+
+	// CORS: Allow all origins
+	router.Use(cors.Default())
+
+	return router
 }
 
 func ProductRedirectRouter(db orm.DB, r *gin.Engine) *gin.Engine {
