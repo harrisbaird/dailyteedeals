@@ -15,6 +15,8 @@ import (
 	"github.com/harrisbaird/dailyteedeals/utils"
 )
 
+const cacheExpiry = 10 * time.Minute
+
 func SetupRoutes(db orm.DB, hs utils.HostSwitch) {
 	if config.IsProduction() {
 		gin.SetMode(gin.ReleaseMode)
@@ -38,8 +40,8 @@ func newRouter() *gin.Engine {
 
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 
-	store := persistence.NewInMemoryStore(60 * time.Minute)
-	router.Use(cache.SiteCache(store, 60*time.Minute))
+	store := persistence.NewInMemoryStore(cacheExpiry)
+	router.Use(cache.SiteCache(store, cacheExpiry))
 
 	// CORS: Allow all origins
 	router.Use(cors.Default())
