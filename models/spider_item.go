@@ -35,8 +35,8 @@ func CreateSpiderItem(db orm.DB, spiderJobID int, data string) (*SpiderItem, err
 
 func (item *SpiderItem) UpdateError(db orm.DB, err error) {
 	item.Error = err.Error()
-	if err := db.Update(&item); err != nil {
-		log.Println(err.Error)
+	if err := db.Update(item); err != nil {
+		log.Println(err.Error())
 	}
 }
 

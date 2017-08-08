@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"runtime"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-pg/pg"
@@ -68,7 +69,8 @@ func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
 
 	err := next()
 	if err != nil {
-		log.Printf("Job errored: %s (%s) - %v\n", job.Name, job.ID, err)
+		_, fn, line, _ := runtime.Caller(1)
+		log.Printf("[%s] Job errored: %s:%d %v\n", job.Name, fn, line, err)
 	}
 
 	return err
@@ -90,8 +92,8 @@ func (c *JobContext) ScheduleFull(job *work.Job) error {
 // and schedules a 'parse_feed' job, otherwise reschedules a 'wait_for_scraper
 // job in 5 seconds.
 func (c *JobContext) WaitForScraper(job *work.Job) error {
-	var spiderJob models.SpiderJob
-	if err := c.DB.Model(&spiderJob).Where("id=?", job.ArgInt64("spider_job_id")).First(); err != nil {
+	spiderJob, err := models.FindSpiderJob(c.DB, int(job.ArgInt64("spider_job_id")))
+	if err != nil {
 		return err
 	}
 	finished, err := ScrapydIsFinished(spiderJob.ScrapydJobID)
@@ -113,8 +115,8 @@ func (c *JobContext) WaitForScraper(job *work.Job) error {
 // ParseFeed parses downloads and parses the item feed
 // and creates a 'parse_item' job for each item.
 func (c *JobContext) ParseFeed(job *work.Job) error {
-	var spiderJob models.SpiderJob
-	if err := c.DB.Model(&spiderJob).Where("id=?", job.ArgInt64("spider_job_id")).First(); err != nil {
+	spiderJob, err := models.FindSpiderJob(c.DB, int(job.ArgInt64("spider_job_id")))
+	if err != nil {
 		return err
 	}
 	if err := models.MarkProductsInactive(c.DB, spiderJob.SiteID, spiderJob.JobType == models.SiteDealJobType.String()); err != nil {
