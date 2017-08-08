@@ -47,6 +47,7 @@ func PostgresConnectionOptions() *pg.Options {
 		User:     App.PostgresUser,
 		Password: App.PostgresPassword,
 		Database: App.PostgresDatabase,
+		PoolSize: 80,
 	}
 
 }
@@ -57,7 +58,6 @@ func PostgresTestConnectionOptions() *pg.Options {
 		User:     "postgres",
 		Password: "",
 		Database: "dailyteedeals_test",
-		PoolSize: 20,
 	}
 }
 
