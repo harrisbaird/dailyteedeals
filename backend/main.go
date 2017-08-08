@@ -26,9 +26,7 @@ var (
 )
 
 type JobContext struct {
-	DB         *pg.DB
-	SpiderJob  *models.SpiderJob
-	SpiderItem *models.SpiderItem
+	DB *pg.DB
 }
 
 func Start(db *pg.DB) {
@@ -46,8 +44,8 @@ func Start(db *pg.DB) {
 	// Setup job scheduling
 	if config.IsProduction() {
 		log.Println("Creating periodic backend jobs")
-		pool.PeriodicallyEnqueue("0 0 * * * *", "schedule_deal")
-		pool.PeriodicallyEnqueue("0 0 0 * * 1", "schedule_full")
+		pool.PeriodicallyEnqueue("0 30 * * * *", "schedule_deal")
+		// pool.PeriodicallyEnqueue("0 0 0 * * 1", "schedule_full")
 		pool.PeriodicallyEnqueue("0 0 0 * * *", "update_exchange_rates")
 	}
 
@@ -143,15 +141,15 @@ func (c *JobContext) ParseFeed(job *work.Job) error {
 
 // ParseItem parses the item data, creating the required database rows.
 func (c *JobContext) ParseItem(job *work.Job) error {
-	var spiderItem models.SpiderItem
-	if err := c.DB.Model(&spiderItem).Column("spider_item.*", "SpiderJob").Where("spider_item.id=?", job.ArgInt64("spider_item_id")).First(); err != nil {
+	spiderItem, err := models.FindSpiderItem(c.DB, int(job.ArgInt64("spider_item_id")))
+	if err != nil {
 		return err
 	}
-	err := c.DB.RunInTransaction(func(tx *pg.Tx) error {
+
+	err = c.DB.RunInTransaction(func(tx *pg.Tx) error {
 		err := spiderItem.ParseItemData(tx, minioConn)
 		if err != nil {
-			spiderItem.Error = err.Error()
-			tx.Update(&spiderItem)
+			spiderItem.UpdateError(c.DB, err)
 		}
 		return err
 	})

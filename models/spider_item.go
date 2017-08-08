@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"strconv"
+	"log"
 	"time"
 
 	"github.com/go-pg/pg/orm"
@@ -21,35 +21,23 @@ type SpiderItem struct {
 	Product   *Product
 }
 
-type ScrapydItem struct {
-	Name         string         `json:"name"`
-	Description  string         `json:"description"`
-	URL          string         `json:"url"`
-	ArtistName   string         `json:"artist_name"`
-	ArtistUrls   []string       `json:"artist_urls"`
-	Prices       map[string]int `json:"prices"`
-	ImageURL     string         `json:"image_url"`
-	Tags         []string       `json:"tags"`
-	FabricColors []string       `json:"fabric_colors"`
-	Active       bool           `json:"active"`
-	Deal         bool           `json:"deal"`
-	LastChance   bool           `json:"last_chance"`
-	Valid        bool           `json:"valid"`
-	ExpiresAt    time.Time      `json:"expires_at"`
-}
-
-func (item *ScrapydItem) StringPrices() map[string]string {
-	out := make(map[string]string)
-	for k, v := range item.Prices {
-		out[k] = strconv.Itoa(v)
-	}
-	return out
+func FindSpiderItem(db orm.DB, id int) (*SpiderItem, error) {
+	var item SpiderItem
+	err := db.Model(&item).Column("spider_item.*", "SpiderJob").Where("spider_item.id=?", id).First()
+	return &item, err
 }
 
 func CreateSpiderItem(db orm.DB, spiderJobID int, data string) (*SpiderItem, error) {
 	item := SpiderItem{SpiderJobID: spiderJobID, ItemData: data}
 	err := db.Insert(&item)
 	return &item, err
+}
+
+func (item *SpiderItem) UpdateError(db orm.DB, err error) {
+	item.Error = err.Error()
+	if err := db.Update(&item); err != nil {
+		log.Println(err.Error)
+	}
 }
 
 func (item *SpiderItem) ParseItemData(db orm.DB, minioConn *utils.MinioConnection) error {
