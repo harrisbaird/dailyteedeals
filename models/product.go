@@ -174,7 +174,7 @@ func (p *Product) normalize(db orm.DB) error {
 }
 
 func (p *Product) updateProductSlug(db orm.DB) error {
-	design := Design{ID: p.SiteID}
+	design := Design{ID: p.DesignID}
 	err := db.Select(&design)
 	if err != nil {
 		return err
