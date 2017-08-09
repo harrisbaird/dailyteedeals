@@ -138,8 +138,7 @@ func (p *Product) UpdateImage(db orm.DB, minioConn *utils.MinioConnection, url s
 		thumb := utils.TransformImage(image, transform, bgColor)
 		imageData := new(bytes.Buffer)
 		imaging.Encode(imageData, thumb, transform.Format)
-		_, err := minioConn.Client.PutObject(minioConn.Bucket, fmt.Sprintf(transform.Path, p.ID), imageData, transform.MimeType)
-		if err != nil {
+		if err := minioConn.PutObject(fmt.Sprintf(transform.Path, p.ID), imageData, transform.MimeType); err != nil {
 			return err
 		}
 	}
