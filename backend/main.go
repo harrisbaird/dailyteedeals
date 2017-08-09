@@ -65,12 +65,14 @@ func Stop() {
 }
 
 func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
-	log.Printf("Starting job: %s (%s)\n", job.Name, job.ID)
+	log.Printf("[%s] starting job\n", job.Name)
 
 	err := next()
 	if err != nil {
 		_, fn, line, _ := runtime.Caller(1)
-		log.Printf("[%s] Job errored: %s:%d %v\n", job.Name, fn, line, err)
+		log.Printf("[%s] encountered an error: %s:%d %v\n", job.Name, fn, line, err)
+	} else {
+		log.Printf("[%s] finished successfully\n", job.Name)
 	}
 
 	return err
@@ -143,18 +145,20 @@ func (c *JobContext) ParseFeed(job *work.Job) error {
 
 // ParseItem parses the item data, creating the required database rows.
 func (c *JobContext) ParseItem(job *work.Job) error {
+	var err error
 	spiderItem, err := models.FindSpiderItem(c.DB, int(job.ArgInt64("spider_item_id")))
 	if err != nil {
 		return err
 	}
 
 	err = c.DB.RunInTransaction(func(tx *pg.Tx) error {
-		err := spiderItem.ParseItemData(tx, minioConn)
-		if err != nil {
-			spiderItem.UpdateError(c.DB, err)
-		}
-		return err
+		return spiderItem.ParseItemData(tx, minioConn)
 	})
+
+	if err != nil {
+		spiderItem.UpdateError(c.DB, err)
+	}
+
 	return err
 }
 
