@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"io"
 	"log"
+	"strings"
 
 	"github.com/harrisbaird/dailyteedeals/config"
 	minio "github.com/minio/minio-go"
@@ -12,7 +14,11 @@ func NewMinioConnection() *MinioConnection {
 	if err != nil {
 		panic(err)
 	}
-	return &MinioConnection{Client: client, Bucket: config.App.AWSS3Bucket}
+
+	conn := &MinioConnection{Client: client, Bucket: config.App.AWSS3Bucket}
+	conn.TestConfig()
+
+	return conn
 }
 
 func NewMinioTestConnection() *MinioConnection {
@@ -45,6 +51,17 @@ type MinioConnection struct {
 	TestMode bool
 }
 
+// PutObject creates an object in a bucket.
+func (conn *MinioConnection) PutObject(objectName string, reader io.Reader, contentType string) error {
+	_, err := conn.Client.PutObject(conn.Bucket, objectName, reader, contentType)
+	return err
+}
+
+// RemoveObject removes an object from a bucket.
+func (conn *MinioConnection) RemoveObject(objectName string) error {
+	return conn.Client.RemoveObject(conn.Bucket, objectName)
+}
+
 // Clean removes all files from a bucket and deletes the bucket.
 func (conn *MinioConnection) Clean() {
 	if !conn.TestMode {
@@ -68,4 +85,14 @@ func (conn *MinioConnection) Clean() {
 	if err := conn.Client.RemoveBucket(conn.Bucket); err != nil {
 		log.Println(err)
 	}
+}
+
+// TestConfig checks if the minio settings are valid
+func (conn *MinioConnection) TestConfig() {
+	conn.RemoveObject("connection_test")
+	if err := conn.PutObject("connection_test", strings.NewReader(""), "plain/text"); err != nil {
+		log.Fatalf("Unable to verify s3 config - %s\n", err.Error())
+	}
+
+	log.Println("S3 config OK")
 }
