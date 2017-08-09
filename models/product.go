@@ -146,7 +146,7 @@ func (p *Product) UpdateImage(db orm.DB, minioConn *utils.MinioConnection, url s
 
 	p.ImageBackground = utils.ColorToHex(bgColor)
 	p.ImageUpdatedAt = time.Now()
-	return db.Update(&p)
+	return db.Update(p)
 }
 
 func (p *Product) BeforeInsert(db orm.DB) error {
