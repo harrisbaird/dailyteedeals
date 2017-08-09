@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"runtime"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/orm"
 	"github.com/gocraft/work"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/harrisbaird/dailyteedeals/models"
@@ -174,24 +174,29 @@ func (c *JobContext) scheduleJobs(jobType models.SiteJobType) error {
 	}
 
 	for _, site := range sites {
-		scrapydJobID, err := ScrapydSchedule(site.Slug + "_" + jobType.String())
+		err := scheduleJob(c.DB, site, jobType)
 		if err != nil {
 			log.Printf("Job scheduling failed for site: %s - %s", site.Name, err.Error())
 			continue
 		}
-
-		spiderJob, err := models.CreateSpiderJob(c.DB, site.ID, scrapydJobID, jobType.String())
-		if err != nil {
-			log.Println("CreateSpiderJob: " + err.Error())
-			continue
-		}
-
-		_, err = enqueuer.EnqueueIn("wait_for_scraper", recheckRateSeconds,
-			work.Q{"spider_job_id": spiderJob.ID})
-		if err != nil {
-			log.Println(err)
-		}
 	}
 
 	return nil
+}
+
+func scheduleJob(db orm.DB, site *models.Site, jobType models.SiteJobType) error {
+	scrapydJobID, err := ScrapydSchedule(site.Slug + "_" + jobType.String())
+	if err != nil {
+		return err
+	}
+
+	spiderJob, err := models.CreateSpiderJob(db, site.ID, scrapydJobID, jobType.String())
+	if err != nil {
+		return err
+	}
+
+	_, err = enqueuer.EnqueueIn("wait_for_scraper", recheckRateSeconds,
+		work.Q{"spider_job_id": spiderJob.ID})
+
+	return err
 }
