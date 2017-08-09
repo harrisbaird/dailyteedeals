@@ -69,10 +69,9 @@ func (c *JobContext) Log(job *work.Job, next work.NextMiddlewareFunc) error {
 
 	err := next()
 	if err != nil {
-		_, fn, line, _ := runtime.Caller(1)
-		log.Printf("[%s] encountered an error: %s:%d %v\n", job.Name, fn, line, err)
+		log.Printf("[%s] error: %v", job.Name, err)
 	} else {
-		log.Printf("[%s] finished successfully\n", job.Name)
+		log.Printf("[%s] finished", job.Name)
 	}
 
 	return err
@@ -177,7 +176,7 @@ func (c *JobContext) scheduleJobs(jobType models.SiteJobType) error {
 	for _, site := range sites {
 		scrapydJobID, err := ScrapydSchedule(site.Slug + "_" + jobType.String())
 		if err != nil {
-			log.Println("ScrapydSchedule: " + err.Error())
+			log.Printf("Job scheduling failed for site: %s - %s", site.Name, err.Error())
 			continue
 		}
 

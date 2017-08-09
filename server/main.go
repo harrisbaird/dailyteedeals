@@ -34,7 +34,7 @@ func Start(db orm.DB) {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			log.Printf("listen: %s\n", err)
+			log.Fatalln(err)
 		}
 	}()
 }

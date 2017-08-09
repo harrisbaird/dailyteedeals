@@ -71,6 +71,7 @@ func (item *SpiderItem) ParseItemData(db orm.DB, minioConn *utils.MinioConnectio
 		Set("url = ?url, prices = ?prices, active = ?active, deal = ?deal, last_chance = ?last_chance").
 		Insert()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 

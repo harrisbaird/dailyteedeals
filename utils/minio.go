@@ -30,7 +30,7 @@ func NewMinioTestConnection() *MinioConnection {
 	bucket := RandString(15)
 	err = client.MakeBucket(bucket, "us-east-1")
 	if err != nil {
-		log.Printf("NewMinioTestConnection: MakeBucket returned error: %v\n", err)
+		log.Printf("NewMinioTestConnection: MakeBucket returned error: %v", err)
 	}
 
 	return &MinioConnection{Client: client, Bucket: bucket, TestMode: true}
@@ -78,7 +78,7 @@ func (conn *MinioConnection) Clean() {
 			log.Fatalln(object.Err)
 		}
 		if err := conn.Client.RemoveObject(conn.Bucket, object.Key); err != nil {
-			log.Fatalf("Failed to remove %s, error: %v\n", object.Key, err)
+			log.Fatalf("Failed to remove %s, error: %v", object.Key, err)
 		}
 	}
 
@@ -91,7 +91,7 @@ func (conn *MinioConnection) Clean() {
 func (conn *MinioConnection) TestConfig() {
 	conn.RemoveObject("connection_test")
 	if err := conn.PutObject("connection_test", strings.NewReader(""), "plain/text"); err != nil {
-		log.Fatalf("Unable to verify s3 config - %s\n", err.Error())
+		log.Fatalf("Unable to verify s3 config - %s", err.Error())
 	}
 
 	log.Println("S3 config OK")
