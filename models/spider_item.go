@@ -75,7 +75,10 @@ func (item *SpiderItem) ParseItemData(db orm.DB, minioConn *utils.MinioConnectio
 		return err
 	}
 
-	db.Model(item).Set("product_id=?", product.ID).Update()
+	_, err = db.Model(item).Set("product_id=?", product.ID).Update()
+	if err != nil {
+		log.Printf("Unable to update SpiderItem productID - %s\n", err.Error())
+	}
 
 	return product.UpdateImageIfExpired(db, minioConn, data.ImageURL)
 }
