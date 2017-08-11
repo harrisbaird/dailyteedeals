@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/harrisbaird/dailyteedeals/models"
 	"github.com/harrisbaird/dailyteedeals/utils"
 )
@@ -20,12 +22,13 @@ type v2Artist struct {
 }
 
 type v2Design struct {
-	ID       int          `json:"id"`
-	Slug     string       `json:"slug"`
-	Name     string       `json:"name"`
-	URL      string       `json:"url"`
-	Artist   *v2Artist    `json:"artist"`
-	Products []*v2Product `json:"products,omitempty"`
+	ID         int           `json:"id"`
+	Slug       string        `json:"slug"`
+	Name       string        `json:"name"`
+	URL        string        `json:"url"`
+	Artist     *v2Artist     `json:"artist"`
+	Products   []*v2Product  `json:"products,omitempty"`
+	Categories []*v2Category `json:"categories"`
 }
 
 type v2Price struct {
@@ -49,6 +52,13 @@ type v2Product struct {
 	LastChance bool                              `json:"lastChance"`
 	Prices     map[string]utils.ApproximatePrice `json:"prices"`
 	Images     *v2Images                         `json:"images"`
+}
+
+type v2Category struct {
+	ID       int    `json:"id"`
+	Slug     string `json:"slug"`
+	Name     string `json:"name"`
+	ImageURL string `json:"image_url"`
 }
 
 func buildV2Product(product *models.Product) *v2Product {
@@ -85,14 +95,12 @@ func buildV2Images(product *models.Product) *v2Images {
 }
 
 func buildV2Artist(artist *models.Artist) *v2Artist {
-	out := v2Artist{
+	return &v2Artist{
 		ID:      artist.ID,
 		Slug:    artist.Slug,
 		Name:    artist.Name,
 		Designs: []*v2Design{},
 	}
-
-	return &out
 }
 
 func buildV2ArtistWithDesigns(artist *models.Artist) *v2Artist {
@@ -102,19 +110,19 @@ func buildV2ArtistWithDesigns(artist *models.Artist) *v2Artist {
 }
 
 func buildV2Design(design *models.Design) *v2Design {
-	if design == nil {
-		return nil
+	if len(design.Categories) > 0 {
+		fmt.Printf("%d\n", design.ID)
 	}
 
-	out := v2Design{
-		ID:       design.ID,
-		Slug:     design.Slug,
-		Name:     design.Name,
-		URL:      "https://dailyteedeals.com/designs/" + design.Slug,
-		Artist:   buildV2Artist(design.Artist),
-		Products: []*v2Product{},
+	return &v2Design{
+		ID:         design.ID,
+		Slug:       design.Slug,
+		Name:       design.Name,
+		URL:        "https://dailyteedeals.com/designs/" + design.Slug,
+		Artist:     buildV2Artist(design.Artist),
+		Categories: buildV2Categories(design.Categories),
+		Products:   []*v2Product{},
 	}
-	return &out
 }
 
 func buildV2DesignWithProducts(design *models.Design) *v2Design {
@@ -145,14 +153,12 @@ func buildV2Designs(designs []*models.Design) []*v2Design {
 }
 
 func buildV2Site(site *models.Site) *v2Site {
-	out := v2Site{
+	return &v2Site{
 		ID:       site.ID,
 		Slug:     site.Slug,
 		Name:     site.Name,
 		Products: []*v2Product{},
 	}
-
-	return &out
 }
 
 func buildV2SiteWithProducts(site *models.Site) *v2Site {
@@ -162,10 +168,29 @@ func buildV2SiteWithProducts(site *models.Site) *v2Site {
 }
 
 func buildV2Sites(sites []*models.Site) []*v2Site {
-	var out []*v2Site
+	out := []*v2Site{}
 
 	for _, site := range sites {
 		out = append(out, buildV2Site(site))
+	}
+
+	return out
+}
+
+func buildV2Category(category *models.Category) *v2Category {
+	return &v2Category{
+		ID:       category.ID,
+		Slug:     category.Slug,
+		Name:     category.Name,
+		ImageURL: category.Product.LargeImageURL(),
+	}
+}
+
+func buildV2Categories(categories []*models.Category) []*v2Category {
+	out := []*v2Category{}
+
+	for _, category := range categories {
+		out = append(out, buildV2Category(category))
 	}
 
 	return out

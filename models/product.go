@@ -62,7 +62,7 @@ const updateImagesEvery = 7 * 24 * time.Hour
 func ActiveDeals(db orm.DB) ([]*Product, error) {
 	var products []*Product
 	err := db.Model(&products).
-		Column("product.*", "Site", "Design", "Design.Artist").
+		Column("product.*", "Site", "Design", "Design.Artist", "Design.Categories", "Design.Categories.Product").
 		Where("product.active=? AND product.deal=?", true, true).
 		Order("site.display_order ASC", "product.site_id ASC", "product.last_chance ASC", "product.slug ASC").
 		Select()
