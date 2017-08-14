@@ -6,11 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/models"
 	. "github.com/harrisbaird/dailyteedeals/server"
 	"github.com/harrisbaird/dailyteedeals/utils"
+	"github.com/labstack/echo"
 	"github.com/nbio/st"
 )
 
@@ -30,7 +30,7 @@ func TestProductRedirectRouter(t *testing.T) {
 	models.RunInTestTransaction(false, func(db orm.DB) {
 		models.ImportProductFixtures(db)
 
-		server := httptest.NewServer(ProductRedirectRouter(db, gin.New()))
+		server := httptest.NewServer(ProductRedirectRouter(db, echo.New()))
 		defer server.Close()
 
 		client := http.Client{
@@ -86,7 +86,7 @@ func TestApi(t *testing.T) {
 				models.ImportUserFixtures(db)
 				models.ImportProductFixtures(db)
 
-				server := httptest.NewServer(ApiRouter(db, gin.New()))
+				server := httptest.NewServer(ApiRouter(db, echo.New()))
 				defer server.Close()
 				resp, err := http.Get(server.URL + tt.routerPath)
 				st.Assert(t, err, nil)

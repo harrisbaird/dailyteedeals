@@ -47,19 +47,19 @@
   branch = "master"
   name = "github.com/PuerkitoBio/urlesc"
   packages = ["."]
-  revision = "bbf7a2afc14f93e1e0a5c06df524fbd75e5031e5"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/bradfitz/gomemcache"
-  packages = ["memcache"]
-  revision = "1952afaa557dc08e8e0d89eafab110fb501c1a2b"
+  revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
   name = "github.com/caarlos0/env"
   packages = ["."]
   revision = "0cf029d5748c52beb2c9d20c81880cb4bdf8f788"
   version = "v3.0"
+
+[[projects]]
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  revision = "d2709f9f1f31ebcda9651b03077758c1f3a0018c"
+  version = "v3.0.0"
 
 [[projects]]
   name = "github.com/disintegration/imaging"
@@ -74,40 +74,10 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/gin-contrib/cache"
-  packages = [".","persistence","utils"]
-  revision = "bc56748ee71c18f6848a8e3b77f38e5fc911a71d"
-
-[[projects]]
-  name = "github.com/gin-contrib/cors"
-  packages = ["."]
-  revision = "cf4846e6a636a76237a28d9286f163c132e841bc"
-  version = "v1.2"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/gin-contrib/gzip"
-  packages = ["."]
-  revision = "ff223ab9f8e3e69d4eb333c90966e057c5a97873"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/gin-contrib/sse"
-  packages = ["."]
-  revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
-
-[[projects]]
-  name = "github.com/gin-gonic/gin"
-  packages = [".","binding","render"]
-  revision = "d459835d2b077e44f7c9b453505ee29881d5d12d"
-  version = "v1.2"
-
-[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "d3de07a94d22b4a0972deb4b96d790c2c0ce8333"
-  version = "v1.28.0"
+  revision = "20b96f641a5ea98f2f8619ff4f3e061cff4833bd"
+  version = "v1.28.2"
 
 [[projects]]
   name = "github.com/go-pg/migrations"
@@ -118,20 +88,14 @@
 [[projects]]
   name = "github.com/go-pg/pg"
   packages = [".","internal","internal/parser","internal/pool","orm","types"]
-  revision = "d9bd76e1a25ed4fb9d2c8dafd8ecb1d928dbcdeb"
-  version = "v6.4.14"
+  revision = "39eb826384d51b070d7a8f3ce0f585eca253f3ea"
+  version = "v6.4.16"
 
 [[projects]]
   name = "github.com/gocraft/work"
   packages = ["."]
   revision = "67c8dc210ce647e8d8a4206c7f5856ea2390f290"
   version = "v0.5.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/golang/protobuf"
-  packages = ["proto"]
-  revision = "748d386b5c1ea99658fd69fe9f03991ce86a90c1"
 
 [[projects]]
   branch = "master"
@@ -152,6 +116,24 @@
   version = "v1.1"
 
 [[projects]]
+  name = "github.com/labstack/echo"
+  packages = [".","middleware"]
+  revision = "935a60782cbbc55110e7bd4b33120e4567cbee43"
+  version = "v3.2.1"
+
+[[projects]]
+  name = "github.com/labstack/gommon"
+  packages = ["bytes","color","log","random"]
+  revision = "779b8a8b9850a97acba6a3fe20feb628c39e17c1"
+  version = "0.2.2"
+
+[[projects]]
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
@@ -166,8 +148,8 @@
 [[projects]]
   name = "github.com/minio/minio-go"
   packages = [".","pkg/credentials","pkg/encrypt","pkg/policy","pkg/s3signer","pkg/s3utils","pkg/set"]
-  revision = "5ca66c9a35ba1cd674484be99dc97aa0973afe12"
-  version = "v3.0.0"
+  revision = "1a09415eed6025360c2c3142f92d3bcf339f873d"
+  version = "v3.0.1"
 
 [[projects]]
   branch = "master"
@@ -195,21 +177,33 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/robfig/go-cache"
-  packages = ["."]
-  revision = "9fc39e0dbf62c034ec4e45e6120fc69433a3ec51"
-
-[[projects]]
-  branch = "master"
   name = "github.com/sethgrid/pester"
   packages = ["."]
   revision = "99271bb5a99e5769f688c483eabb3c22d71ebf93"
 
 [[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "a3f95b5c423586578a4e099b11a46c2479628cac"
+  version = "1.0.2"
+
+[[projects]]
   branch = "master"
-  name = "github.com/ugorji/go"
-  packages = ["codec"]
-  revision = "5efa3251c7f7d05e5d9704a69a984ec9f1386a40"
+  name = "github.com/valyala/bytebufferpool"
+  packages = ["."]
+  revision = "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/valyala/fasttemplate"
+  packages = ["."]
+  revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["acme","acme/autocert"]
+  revision = "b176d7def5d71bdd214203491f89843ed217f420"
 
 [[projects]]
   branch = "master"
@@ -221,25 +215,19 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["idna"]
-  revision = "f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f"
+  revision = "1c05540f6879653db88113bc4a2b70aec4bd491f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "d8f5ea21b9295e315e612b4bcf4bedea93454d4d"
+  revision = "c84c1ab9fd18cdd4c23dd021c10f5f46dea95e46"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable","width"]
-  revision = "3bd178b88a8180be2df394a1fbb81313916f0e7b"
-
-[[projects]]
-  name = "gopkg.in/go-playground/validator.v8"
-  packages = ["."]
-  revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
-  version = "v8.18.2"
+  revision = "b19bf474d317b857955b12035d2c5acb57ce8b01"
 
 [[projects]]
   name = "gopkg.in/h2non/gock.v1"
@@ -247,15 +235,9 @@
   revision = "84d599244901620fb3eb96473eb9e50619f69b47"
   version = "v1.0.6"
 
-[[projects]]
-  branch = "v2"
-  name = "gopkg.in/yaml.v2"
-  packages = ["."]
-  revision = "25c4ec802a7d637f88d584ab26798e94ad14c13b"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1e81b9dfa2de3f5e66f43b44ad0154770a772aaba5818b9d2c90332ed5b50967"
+  inputs-digest = "1a952aef213977b3633ef25b2d2d009bd85601b2e49afdfde5e4eb4d8337088a"
   solver-name = "gps-cdcl"
   solver-version = 1

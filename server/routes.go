@@ -2,87 +2,71 @@ package server
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/gin-contrib/cache"
-	"github.com/gin-contrib/cache/persistence"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/gzip"
-	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/config"
 	"github.com/harrisbaird/dailyteedeals/models"
-	"github.com/harrisbaird/dailyteedeals/utils"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
-const cacheExpiry = 10 * time.Minute
+type Host struct{ Echo *echo.Echo }
+type Hosts map[string]*Host
 
-func SetupRoutes(db orm.DB, hs utils.HostSwitch) {
-	if config.IsProduction() {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
+func SetupRoutes(db orm.DB) Hosts {
 	apiRouter := ApiRouter(db, newRouter())
-	productRedirectRouter := ProductRedirectRouter(db, gin.Default())
+	productRedirectRouter := ProductRedirectRouter(db, newRouter())
 
-	hs[config.App.DomainAPI] = apiRouter
-	hs[config.App.DomainGo] = productRedirectRouter
+	hosts := Hosts{}
+
+	hosts[config.App.DomainAPI] = &Host{apiRouter}
+	hosts[config.App.DomainGo] = &Host{productRedirectRouter}
+	// hs[config.App.DomainWeb] =
 
 	// Also listen locally using lvh.me
 	if !config.IsProduction() {
-		hs["api.lvh.me:8080"] = apiRouter
-		hs["go.lvh.me:8080"] = productRedirectRouter
+		hosts["api.lvh.me:8080"] = &Host{apiRouter}
+		hosts["go.lvh.me:8080"] = &Host{productRedirectRouter}
 	}
+
+	return hosts
 }
 
-func newRouter() *gin.Engine {
-	router := gin.Default()
-
-	router.Use(gzip.Gzip(gzip.DefaultCompression))
-
-	store := persistence.NewInMemoryStore(cacheExpiry)
-	router.Use(cache.SiteCache(store, cacheExpiry))
-
-	// CORS: Allow all origins
-	router.Use(cors.Default())
-
-	return router
+func newRouter() *echo.Echo {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	return e
 }
 
-func ProductRedirectRouter(db orm.DB, r *gin.Engine) *gin.Engine {
-	r.GET("/:slug", func(c *gin.Context) {
-
+func ProductRedirectRouter(db orm.DB, e *echo.Echo) *echo.Echo {
+	e.GET("/:slug", func(c echo.Context) error {
 		product, err := models.FindProductBySlug(db, c.Param("slug"))
 		if err != nil {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
+			return err
 		}
 		buyURL, err := product.BuyURL(db)
 		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
+			return err
 		}
 		c.Redirect(http.StatusFound, buyURL)
+		return nil
 	})
-	return r
+	return e
 }
 
-func ApiRouter(db orm.DB, r *gin.Engine) *gin.Engine {
-	r.Use(AuthTokenMiddleware(db))
+func ApiRouter(db orm.DB, e *echo.Echo) *echo.Echo {
+	e.Use(AuthTokenMiddleware(db))
 
-	v1Router := r.Group("/v1")
-	{
-		v1Router.GET("/products.json", V1ProductsEndpoint(db))
-	}
+	v1Group := e.Group("/v1")
+	v1Group.GET("/products.json", V1ProductsEndpoint(db))
 
-	v2Router := r.Group("/v2")
-	{
-		v2Router.GET("/deals", V2DealsEndpoint(db))
-		v2Router.GET("/designs/:slug", V2DesignEndpoint(db))
-		v2Router.GET("/artists/:slug", V2ArtistEndpoint(db))
-		v2Router.GET("/sites", V2SiteIndexEndpoint(db))
-		v2Router.GET("/sites/:slug", V2SiteShowEndpoint(db))
-	}
+	v2Group := e.Group("/v2")
+	v2Group.GET("/deals", V2DealsEndpoint(db))
+	v2Group.GET("/designs/:slug", V2DesignEndpoint(db))
+	v2Group.GET("/artists/:slug", V2ArtistEndpoint(db))
+	v2Group.GET("/sites", V2SiteIndexEndpoint(db))
+	v2Group.GET("/sites/:slug", V2SiteShowEndpoint(db))
 
-	return r
+	return e
 }

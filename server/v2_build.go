@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/harrisbaird/dailyteedeals/models"
 	"github.com/harrisbaird/dailyteedeals/utils"
 )
@@ -110,10 +108,6 @@ func buildV2ArtistWithDesigns(artist *models.Artist) *v2Artist {
 }
 
 func buildV2Design(design *models.Design) *v2Design {
-	if len(design.Categories) > 0 {
-		fmt.Printf("%d\n", design.ID)
-	}
-
 	return &v2Design{
 		ID:         design.ID,
 		Slug:       design.Slug,

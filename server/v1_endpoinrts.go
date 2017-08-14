@@ -3,19 +3,18 @@ package server
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/orm"
 	"github.com/harrisbaird/dailyteedeals/models"
+	"github.com/labstack/echo"
 )
 
-func V1ProductsEndpoint(db orm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
+func V1ProductsEndpoint(db orm.DB) echo.HandlerFunc {
+	return func(c echo.Context) error {
 		products, productsErr := models.ActiveDeals(db)
 		if productsErr != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "deals not found"})
-			return
+			return c.JSON(http.StatusNotFound, map[string]interface{}{"error": "deals not found"})
 		}
 
-		c.JSON(http.StatusOK, buildV1Api(products))
+		return c.JSON(http.StatusOK, buildV1Api(products))
 	}
 }
