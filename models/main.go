@@ -46,6 +46,7 @@ func retriableConnect(pgOptions *pg.Options, attempt int) *pg.DB {
 // RunInTestTransaction wraps database queries in a transaction.
 func RunInTestTransaction(logging bool, fn func(orm.DB)) {
 	db := retriableConnect(config.PostgresTestConnectionOptions(), 0)
+	migrations.Run(db, "init")
 	runMigrations(db)
 
 	if logging {
