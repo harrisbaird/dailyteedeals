@@ -20,8 +20,8 @@ func main() {
 		panic(err)
 	}
 
-	server.Start(db)
-	defer server.Stop()
+	servers := server.Start(db)
+	defer servers.StopAll()
 
 	backend.Start(db)
 	defer backend.Stop()

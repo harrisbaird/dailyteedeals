@@ -30,9 +30,12 @@ type Config struct {
 	AWSS3Endpoint      string `env:"AWS_S3_ENDPOINT" envDefault:"s3.amazonaws.com"`
 	AWSS3Secure        bool   `env:"AWS_S3_SECURE" envDefault:"true"`
 
-	HTTPListenAddr string `env:"HTTP_LISTEN_ADDR" envDefault:"0.0.0.0:8080"`
-	ScrapydAddr    string `env:"SCRAPYD_ADDR" envDefault:"scrapyd:6900"`
-	RedisAddr      string `env:"REDIS_ADDR" envDefault:"redis:6379"`
+	HTTPListenAddr  string `env:"HTTP_LISTEN_ADDR" envDefault:"0.0.0.0:8080"`
+	HTTPSListenAddr string `env:"HTTPS_LISTEN_ADDR" envDefault:"0.0.0.0:8443"`
+	ScrapydAddr     string `env:"SCRAPYD_ADDR" envDefault:"scrapyd:6900"`
+	RedisAddr       string `env:"REDIS_ADDR" envDefault:"redis:6379"`
+
+	LetsEncryptEmail string `env:"LETSENCRYPT_EMAIL" `
 
 	ItemsPerPage int `env:"ITEMS_PER_PAGE" envDefault:"200"`
 }

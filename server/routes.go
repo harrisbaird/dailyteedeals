@@ -18,15 +18,13 @@ func SetupRoutes(db orm.DB) Hosts {
 	productRedirectRouter := ProductRedirectRouter(db, newRouter())
 
 	hosts := Hosts{}
-
 	hosts[config.App.DomainAPI] = &Host{apiRouter}
 	hosts[config.App.DomainGo] = &Host{productRedirectRouter}
-	// hs[config.App.DomainWeb] =
 
 	// Also listen locally using lvh.me
 	if !config.IsProduction() {
-		hosts["api.lvh.me:8080"] = &Host{apiRouter}
-		hosts["go.lvh.me:8080"] = &Host{productRedirectRouter}
+		hosts["api.lvh.me:8443"] = &Host{apiRouter}
+		hosts["go.lvh.me:8443"] = &Host{productRedirectRouter}
 	}
 
 	return hosts
@@ -36,6 +34,9 @@ func newRouter() *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.RequestID())
+	e.Use(middleware.Gzip())
+	e.Use(middleware.CORS())
 	return e
 }
 
