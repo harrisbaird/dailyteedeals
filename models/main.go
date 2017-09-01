@@ -15,6 +15,7 @@ const maxConnectionAttempts = 30 // seconds
 func Connect() *pg.DB {
 	db := retriableConnect(config.PostgresConnectionOptions(), 0)
 	runMigrations(db)
+	insertJobTables(db)
 	return db
 }
 
@@ -81,4 +82,28 @@ func runMigrations(db *pg.DB) {
 	if oldVersion != newVersion {
 		log.Panicf("Migrated database from %d to %d\n", oldVersion, newVersion)
 	}
+}
+
+func insertJobTables(db *pg.DB) {
+	db.Exec(`
+		DROP TABLE IF EXISTS spider_jobs;
+		DROP TABLE IF EXISTS spider_items;
+
+		CREATE TABLE spider_jobs (
+			id serial PRIMARY KEY,
+			site_id integer NOT NULL references sites(id),
+			scrapyd_job_id text NOT NULL,
+			job_type text NOT NULL,
+			created_at timestamp without time zone NOT NULL DEFAULT now()
+		);
+
+		CREATE TABLE spider_items (
+			id serial PRIMARY KEY,
+			spider_job_id integer NOT NULL references spider_jobs(id),
+			product_id integer references products(id),
+			item_data text NOT NULL DEFAULT ''::text,
+			error text NOT NULL DEFAULT '',
+			created_at timestamp without time zone NOT NULL DEFAULT now()
+		);
+	`)
 }
