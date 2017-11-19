@@ -20,6 +20,10 @@ To quickly run all required services using:
 * Download and edit the `docker-compose.yml` file.
 * Run `docker-compose up` in the directory containing the `docker-compose.yml` file.
 
+A Postgres database dump is available (`dump.sql.gz`)  
+Images are not included as they are too large for GitHub (~100GB)
+
+
 
 ## Frontends
 
