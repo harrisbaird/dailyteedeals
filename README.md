@@ -20,3 +20,7 @@ To quickly run all required services using:
 * Download and edit the `docker-compose.yml` file.
 * Run `docker-compose up` in the directory containing the `docker-compose.yml` file.
 
+
+## Frontends
+
+![Frontends](https://github.com/harrisbaird/dailyteedeals/blob/master/assets/frontends.png?raw=true)
