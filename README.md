@@ -5,13 +5,13 @@
 [![](https://images.microbadger.com/badges/image/harrisbaird/dailyteedeals.svg)](https://microbadger.com/images/harrisbaird/dailyteedeals "Get your own image badge on microbadger.com")
 
 # Daily Tee Deals
-Background jobs and and http server for [dailyteedeals.com](https://dailyteedeals.com), a daily tee site, written in [Go](https://golang.org).
+Background jobs and and http server for the now defunct dailyteedeals.com, a daily tee aggregator site, written in [Go](https://golang.org).
 
 ## Requirements
 * [Daily Tee Deals Scrapers](https://github.com/harrisbaird/dailyteedeals_scrapers)
 * Postgresql
 * Redis
-* A S3 bucket or compatible such as Minio
+* A S3 bucket or compatible such as Minio for image storage
 
 ## Running with Docker
 To quickly run all required services using:
